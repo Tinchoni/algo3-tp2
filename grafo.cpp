@@ -16,3 +16,16 @@ Grafo leerGrafo(bool dirigido) {
     }
     return G;
 }
+
+void imprimirGrafo(Grafo g) {
+    for (int i = 0; i < g.size(); i++)
+    {
+        cout << i + 1 << ": ";
+        for (int j = 0; j < g[i].size(); j++)
+        {
+            cout << "(" << g[i][j].dst + 1 << ", " << g[i][j].peso << ") - "; 
+        }
+        cout << endl;
+    }
+    
+}

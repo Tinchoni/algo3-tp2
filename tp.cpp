@@ -8,6 +8,6 @@ int main(int argc, char** argv) {
 
     Grafo G = leerGrafo(false);
 
-    cout << G[0][0].peso;
+    imprimirGrafo(G);
 
 }

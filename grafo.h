@@ -21,6 +21,6 @@ typedef vector<vector<Vecino>> Grafo;
 
 Grafo leerGrafo(bool dirigido);
 
-
+void imprimirGrafo(Grafo g);
 
 #endif
