@@ -1,24 +1,33 @@
 #include "grafo.h"
-#define INFINITO 10e6
 
-Grafo leerGrafo(bool dirigido) {
+Grafo leerGrafo() {
     int n, m;
     cin >> n >> m;
-    Grafo G(n, vector<Peso>(n,INFINITO));
+    Grafo G(n, vector<Peso>(n, -1));
 
     for (int i = 0; i < m; i++) {
         int v, w, peso;
         cin >> v >> w >> peso;
-        G[v - 1][w-1] = peso;
-        if (!dirigido) {
-            G[w - 1][v-1] = peso;
-        }
+		conectar(G, v-1, w-1, peso);
     }
     for(int i = 0; i < G.size(); i++) {
     	G[i][i] = 0;
     }
     return G;
 }
+
+bool esIgual(Grafo a, Grafo b) {
+	for (size_t i = 0; i < a.size(); i++)
+	{
+		for (size_t j = 0; i < b.size(); i++)
+		{
+			if(a[i][j] != b[i][j]) return false;
+		}
+		
+	}
+	return true;
+}
+
 
 void imprimirGrafo(Grafo g) {
 	cout << "   ";
@@ -43,9 +52,14 @@ void imprimirGrafo(Grafo g) {
     
 }
 
-bool todosVisitados(Grafo g, int n, vector<bool> visitado) {
+void conectar(Grafo &g, int i, int j, int pesoDeLaArista) {
+	g[i][j] = pesoDeLaArista;
+	g[j][i] = pesoDeLaArista;
+}
+
+bool todosVisitados(vector<bool> visitado) {
 	bool res = true;
-	for(int i = 0; i < n ; i++) {
+	for(int i = 0; i < visitado.size() ; i++) {
 		res = res && visitado[i];
 	}
 	return res;
@@ -66,8 +80,7 @@ int nodoDeMenorDistancia(Grafo g, int n, vector<bool> visitado, vector<int> dist
 Grafo convertirAGrafo(vector<int> padre, Grafo g){
 	Grafo res(g.size(), vector<Peso>(g.size(), -1));
 	for(int i = 1; i < padre.size(); i++) {
-		res[padre[i]][i] = g[padre[i]][i];
-		res[i][padre[i]] = g[i][padre[i]];
+		conectar(res, padre[i], i, g[padre[i]][i]);
 	}
 	return res;
 }
@@ -90,7 +103,7 @@ Grafo AGM(Grafo g) {
 	distancia[inicial] = 0;
 	visitado[inicial] = true;
 
-	while(!todosVisitados(g,n,visitado)) {
+	while(!todosVisitados(visitado)) {
 		int v = nodoDeMenorDistancia(g, n, visitado, distancia);
 		visitado[v] = true;
 

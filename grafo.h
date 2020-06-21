@@ -1,16 +1,21 @@
 #ifndef GRAFO_H_
 #define GRAFO_H_
 
-#include <vector>
-#include <iostream>
+#include "common.h"
 
 using namespace std;
 
 typedef int Peso;
 typedef vector<vector<Peso>> Grafo;
 
-Grafo leerGrafo(bool dirigido);
+Grafo leerGrafo();
+Grafo leerGrafoDesdeArchivo(string pathAlArchivo);
+
+bool esIgual(Grafo a, Grafo b);
+
+void conectar(Grafo &g, int i, int j, int pesoDeLaArista);
 void imprimirGrafo(Grafo g);
+bool todosVisitados(vector<bool> visitado);
 Grafo AGM(Grafo g);
 
 #endif
