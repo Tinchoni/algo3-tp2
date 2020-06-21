@@ -119,3 +119,32 @@ Grafo AGM(Grafo g) {
 	Grafo res = convertirAGrafo(padre, g);
 	return res;
 }
+
+
+void DFSAux(Grafo g, int v,vector<bool> &visitados,vector<int> &orden) {
+
+    visitados[v] = true;
+    orden.push_back(v);
+
+    for (int i = 0; i < g[v].size(); i++)
+    {
+        if (g[v][i] >= 0 && !visitados[i]) {
+            DFSAux(g,i,visitados,orden);
+        } 
+    }
+    
+
+}
+
+// Dado un grafo G devuelve el orden en el que recorre los nodos sin repetir
+vector<int> DFS(Grafo g,int v) {
+
+    vector<bool> visitados =  vector<bool>(g.size(),false);
+
+    vector<int> orden = vector<int>();
+
+    DFSAux(g,v,visitados,orden);
+
+    return orden;
+
+}

@@ -1,5 +1,6 @@
 #include "heuristicas.h"
 
+
 int obtenerElVecinoNoVisitadoMasCercano (int actual, Grafo g, vector<bool> visitados) {
     int n = g.size();
     int elMasCercano = -1;
@@ -42,3 +43,26 @@ Grafo vecinoMasCercano(Grafo g, int nodoInicial) {
     return circuitoHamiltoniano;
 }
 
+Grafo heuristicaAGM(Grafo g) {
+    int n = g.size();
+    Grafo t = AGM(g);
+    vector<int> ordDFS = DFS(t,0);
+    Grafo circuitoHamiltoniano(n, vector<Peso>(n, -1));
+
+    for (size_t i = 0; i < n; i++)
+    {
+       cout << ordDFS[i];
+    }
+
+    for (int i = 1; i < n; i++)
+    {
+        int desde = ordDFS[i-1];
+        int hasta = ordDFS[i];
+        conectar(circuitoHamiltoniano,desde,hasta,g[desde][hasta]);
+    }
+    
+    conectar(circuitoHamiltoniano,ordDFS[0],ordDFS[n-1],g[ordDFS[0]][ordDFS[n-1]]);
+
+    return circuitoHamiltoniano;
+
+}

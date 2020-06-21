@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
     cout << "\n\nY su AGM es: \n";
     imprimirGrafo(elAGM);
 
-    Grafo elCircHamiltoniano = vecinoMasCercano(G, 1);
+    Grafo elCircHamiltoniano = heuristicaAGM(G);
     cout << "\n\nY su Hamiltoniano para nada óptimo es: \n";
     imprimirGrafo(elCircHamiltoniano);
 
