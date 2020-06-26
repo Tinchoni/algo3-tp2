@@ -2,15 +2,15 @@
 #include "grafo.h"
 #include "heuristicas.h"
 
-#define CATCH_CONFIG_RUNNER
-#include "catch.hpp"
+//#define CATCH_CONFIG_RUNNER
+//#include "catch.hpp"
 
 int main(int argc, char** argv) {
 
-    bool no_tests = false;
-    for(int j=1; j<argc; j++){
-        if(string(argv[j]) == "--no-tests"){no_tests= true;}
-    }
+    //bool no_tests = false;
+    //for(int j=1; j<argc; j++){
+    //    if(string(argv[j]) == "--no-tests"){no_tests= true;}
+    //}
 
     Grafo G = leerGrafo();
     cout << "El grafo leido es:\n";
@@ -20,18 +20,26 @@ int main(int argc, char** argv) {
     cout << "\n\nY su AGM es: \n";
     imprimirGrafo(elAGM);
 
-    Grafo elCircHamiltoniano = heuristicaAGM(G);
-    cout << "\n\nY su Hamiltoniano para nada óptimo es: \n";
+    Grafo elCircHamiltoniano = vecinoMasCercano(G, 0);
+    cout << "\n\nY su Hamiltoniano por vecino mas cercano comenzando en v1 es: \n";
     imprimirGrafo(elCircHamiltoniano);
 
-    if(!no_tests) {
-        Catch::Session().run();
-    }
+    elCircHamiltoniano = heuristicaAGM(G);
+    cout << "\n\nY su Hamiltoniano por AGM: \n";
+    imprimirGrafo(elCircHamiltoniano);
+
+    elCircHamiltoniano = heuristicaDeInsercion(G);
+    cout << "\n\nY su Hamiltoniano por insercion es: \n";
+ 	imprimirGrafo(elCircHamiltoniano);
+
+    //if(!no_tests) {
+    //    Catch::Session().run();
+    //}
 
     return 0;
 }
 
-
+/*
 TEST_CASE("Instancia ejemplo", "[Goloso - Vecino mas cercano]") {    
     freopen( "entradaEjemplo", "r", stdin );
     
@@ -93,4 +101,4 @@ TEST_CASE("Instancia ejemplo", "[Goloso - Vecino mas cercano]") {
     }
 
     REQUIRE(esIgual(deberiaValer, elCircHamiltoniano));
-}
+}*/

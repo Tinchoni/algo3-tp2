@@ -14,6 +14,7 @@ Grafo leerGrafoDesdeArchivo(string pathAlArchivo);
 bool esIgual(Grafo a, Grafo b);
 
 void conectar(Grafo &g, int i, int j, int pesoDeLaArista);
+void deconectar(Grafo &g, int i, int j);
 void imprimirGrafo(Grafo g);
 bool todosVisitados(vector<bool> visitado);
 Grafo AGM(Grafo g);

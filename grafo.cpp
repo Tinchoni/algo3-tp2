@@ -57,6 +57,11 @@ void conectar(Grafo &g, int i, int j, int pesoDeLaArista) {
 	g[j][i] = pesoDeLaArista;
 }
 
+void deconectar(Grafo &g, int i, int j) {
+	g[i][j] = -1;
+	g[j][i] = -1;
+}
+
 bool todosVisitados(vector<bool> visitado) {
 	bool res = true;
 	for(int i = 0; i < visitado.size() ; i++) {
