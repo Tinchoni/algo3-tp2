@@ -65,9 +65,9 @@ Grafo heuristicaAGM(Grafo g) {
     
     conectar(circuitoHamiltoniano,ordDFS[0],ordDFS[n-1],g[ordDFS[0]][ordDFS[n-1]]);
 
-    for (size_t i = 0; i < n; i++)  {
-        conectar(circuitoHamiltoniano, i, i, 0);
-    }
+    // for (size_t i = 0; i < n; i++)  {
+    //     conectar(circuitoHamiltoniano, i, i, 0);
+    // }
 
     return circuitoHamiltoniano;
 
@@ -97,7 +97,7 @@ int elegirNodo(Grafo &g, vector<bool> &visitados, vector<int> &insertados) {
 void insertarElementoEnPosicion(vector<int> &v, int valor, int indice) {
 	v.push_back(valor);
 
-	for(int i = v.size() - 1; i >= indice; i--) {
+	for(int i = v.size() - 1; i > indice; i--) {
 		//swappeo i con i-1
 		int aux = v[i-1];
 		v[i-1] = v[i];
@@ -131,13 +131,9 @@ void insertarNodo(Grafo &circuitoHamiltoniano, int elegido, Grafo &g, vector<boo
 		derecha = 0;
 	}
 
-	//cout << "\n ahora toy por conectar el nodo " << elegido << "entre los nodos " << extremo1 << " y " << extremo2 <<"\n";
-	//cout << "\n el grafo era este:\n";
-	//imprimirGrafo(circuitoHamiltoniano);
-
-	conectar(circuitoHamiltoniano, insertados[extremo1], elegido, g[insertados[extremo1]][elegido]);
-	conectar(circuitoHamiltoniano, elegido, insertados[extremo2], g[elegido][insertados[extremo2]]);
-	deconectar(circuitoHamiltoniano, insertados[extremo1], insertados[extremo2]);
+	conectar(circuitoHamiltoniano, insertados[izquierda], elegido, g[insertados[izquierda]][elegido]);
+	conectar(circuitoHamiltoniano, elegido, insertados[derecha], g[elegido][insertados[derecha]]);
+	deconectar(circuitoHamiltoniano, insertados[izquierda], insertados[derecha]);
 
 	// queremos meter izquierda - elegido - derecha
 	insertarElementoEnPosicion(insertados, elegido, derecha);
@@ -149,9 +145,10 @@ Grafo heuristicaDeInsercion(Grafo g) {
 	vector<bool> visitados(n, false);
 	vector<int> insertados; // vector en el que el nodo i es adyacente a los nodos i-1 e i+1. Capaz ya podemos volar el vector visitados pero por ahora lo dejo.
 
-	for (size_t i = 0; i < n; i++)  {
-        conectar(circuitoHamiltoniano, i, i, 0);
-    }
+	// decidimos no ponerle 0s a la diagonal porque el elemento i no tiene aristas consigo mismo.
+	// for (size_t i = 0; i < n; i++)  {
+    //     conectar(circuitoHamiltoniano, i, i, 0);
+    // }
 
 
 	//elegimos 3 nodos cualesquiera para formar un ciclo inicial. En particular, tomamos los primeros 3 nodos:
@@ -165,19 +162,51 @@ Grafo heuristicaDeInsercion(Grafo g) {
 	insertados.push_back(1);
 	insertados.push_back(2);
 
-	//cout << "\n\nHASTA AHORA METISTE LOS PRIMEROS 3 NODOS: \n";
-    //imprimirGrafo(circuitoHamiltoniano);
-
+	
 	while(!todosVisitados(visitados)) { // Iteramos hasta que estén todos los nodos insertados en el ciclo, es decir, hasta que estén todos visitados.
 		int elegido = elegirNodo(g, visitados, insertados);
-		//cout << "el elegido es el nodo numero:" << elegido << "\n"; 
 		visitados[elegido] = true;
 		insertarNodo(circuitoHamiltoniano, elegido, g, visitados, insertados);
-
-
-		//cout << "\nfin iteracion en el while,\n";
-		//cout << "visitados vale:" << visitados[0] << visitados[1] << visitados[2] << visitados[3] << "\n";
 	}
 
 	return circuitoHamiltoniano;
 }
+
+// vector<Grafo> obtenerSubVecindad(Grafo g, Grafo solucionParcial) {
+// 	int n = g.size();
+// 	//HACER QUE ESTO SEA RANDOM
+// 	// int porcentajeDeLaVecindadAProcesar = 23;
+	
+// 	// for (int i = 0; i < n*porcentajeDeLaVecindadAProcesar/100; i++)
+// 	// {
+		
+// 	// }
+	
+// }
+
+// vector<Grafo> dosOpt(Grafo g, Grafo solucionParcial) {
+
+// }
+
+
+// Grafo heuristicaTabuSolucionesExploradas(Grafo g, int tamanioMemoria, int cantIteracionesSinMejora) {
+// 	Grafo ciclo = heuristicaAGM(g);
+// 	Grafo mejor = ciclo;
+// 	vector<Grafo> memoria(tamanioMemoria);
+// 	int indiceMasViejoDeLaMemoria = 0;
+// 	int haceXIteracionesQueNoMejora = 0;
+// 	while (haceXIteracionesQueNoMejora < cantIteracionesSinMejora) {
+// 		vector<Grafo> vecinos = obtenerSubVecindad(g, ciclo);
+// 		ciclo = obtenerMejor(vecinos, memoria);
+// 		memoria[indiceMasViejoDeLaMemoria] = ciclo;
+// 		indiceMasViejoDeLaMemoria = (indiceMasViejoDeLaMemoria + 1) % tamanioMemoria;
+		
+// 		if(costo(ciclo) < costo(mejor)) {
+// 			mejor = ciclo;
+// 		} else {
+// 			haceXIteracionesQueNoMejora++;
+// 		}
+// 	}
+
+// 	return mejor;
+// }

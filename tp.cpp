@@ -6,7 +6,7 @@
 //#include "catch.hpp"
 
 int main(int argc, char** argv) {
-
+    freopen( "entradaEjemplo", "r", stdin );
     //bool no_tests = false;
     //for(int j=1; j<argc; j++){
     //    if(string(argv[j]) == "--no-tests"){no_tests= true;}
@@ -28,9 +28,22 @@ int main(int argc, char** argv) {
     cout << "\n\nY su Hamiltoniano por AGM: \n";
     imprimirGrafo(elCircHamiltoniano);
 
+    vector<int> listaDeNodoDelCircHamiltoniano = convertirAListaDeNodos(elCircHamiltoniano);
+    cout<< "listaDeNodoDelCircHamiltoniano: " << listaDeNodoDelCircHamiltoniano.size() << endl;
+    for (size_t i = 0; i < listaDeNodoDelCircHamiltoniano.size(); i++){
+        cout<< "listaDeNodoDelCircHamiltoniano[" << i << "]: " <<listaDeNodoDelCircHamiltoniano[i] + 1<<endl;
+    }
+
     elCircHamiltoniano = heuristicaDeInsercion(G);
     cout << "\n\nY su Hamiltoniano por insercion es: \n";
  	imprimirGrafo(elCircHamiltoniano);
+
+    listaDeNodoDelCircHamiltoniano = convertirAListaDeNodos(elCircHamiltoniano);
+    cout<< "listaDeNodoDelCircHamiltoniano: " << listaDeNodoDelCircHamiltoniano.size() << endl;
+    for (size_t i = 0; i < listaDeNodoDelCircHamiltoniano.size(); i++){
+        cout<< "listaDeNodoDelCircHamiltoniano[" << i << "]: " <<listaDeNodoDelCircHamiltoniano[i] + 1<<endl;
+    }
+    
 
     //if(!no_tests) {
     //    Catch::Session().run();

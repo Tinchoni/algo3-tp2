@@ -82,6 +82,53 @@ int nodoDeMenorDistancia(Grafo g, int n, vector<bool> visitado, vector<int> dist
 	return res;
 }
 
+void vecinos(Grafo g, int i, int &deDondeVengo, int &aDondeVoy) {
+	deDondeVengo = -1;
+	aDondeVoy = -1;
+	for (int j = 0; j < g.size(); j++){
+		if(g[i][j] != -1){
+			if(deDondeVengo == -1) {
+				deDondeVengo = j;
+			} else {
+				aDondeVoy = j;
+				j = g.size();
+			}
+		}
+	}
+}
+
+bool esta(int elem, vector<int> v) {
+	for (int i = 0; i < v.size(); i++){
+		if(elem == v[i]) {
+			return true;
+		}
+	}
+	return false;
+}
+
+//precondicion: g es hamiltoniano y cualquier arista que no sea parte del ciclo hamilt. debe valer -1.
+vector<int> convertirAListaDeNodos(Grafo g) {
+	int n = g.size();
+
+	vector<int> recorridos;
+	int desde = 0;
+	int hasta = 0;
+	bool termine = false;
+
+	while (!termine) {
+		if(!esta(desde, recorridos)) {
+			recorridos.push_back(desde);
+			vecinos(g, desde, desde, hasta);
+		} else if (!esta(hasta, recorridos)) {
+			recorridos.push_back(hasta);
+			vecinos(g, hasta, desde, hasta);
+		} else {
+			termine = true;
+		}
+	}
+	return recorridos;
+}
+
 Grafo convertirAGrafo(vector<int> padre, Grafo g){
 	Grafo res(g.size(), vector<Peso>(g.size(), -1));
 	for(int i = 1; i < padre.size(); i++) {

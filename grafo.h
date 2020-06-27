@@ -19,5 +19,6 @@ void imprimirGrafo(Grafo g);
 bool todosVisitados(vector<bool> visitado);
 Grafo AGM(Grafo g);
 vector<int> DFS(Grafo g, int v);
+vector<int> convertirAListaDeNodos(Grafo g);
 
 #endif
