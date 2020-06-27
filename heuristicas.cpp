@@ -85,7 +85,6 @@ int elegirNodo(Grafo &g, vector<bool> &visitados, vector<int> &insertados) {
 	for (int i = 0; i < insertados.size(); i++) {
 		int masCercanoAlActual = obtenerElVecinoNoVisitadoMasCercano(i, g, visitados);
 		distanciaAlActual = g[i][masCercanoAlActual];
-		//cout << "\nel Mas cercano al nodo i=" << i << " es masCercanoAlActual=" << masCercanoAlActual << "\n";
 		if(distanciaAlActual < distanciaAlElegido) {
 			elegido = masCercanoAlActual;
 			distanciaAlElegido = distanciaAlActual;
@@ -95,20 +94,32 @@ int elegirNodo(Grafo &g, vector<bool> &visitados, vector<int> &insertados) {
 	return elegido;
 }
 
+void insertarElementoEnPosicion(vector<int> &v, int valor, int indice) {
+	v.push_back(valor);
+
+	for(int i = v.size() - 1; i >= indice; i--) {
+		//swappeo i con i-1
+		int aux = v[i-1];
+		v[i-1] = v[i];
+		v[i] = aux;
+	}
+}
+
 void insertarNodo(Grafo &circuitoHamiltoniano, int elegido, Grafo &g, vector<bool> &visitados, vector<int> &insertados) {
 	// Como criterio de inserción tomaremos dos nodos consecutivos i e i+1 tales que minimicen el costo de insertar al nuevo nodo entre i e i+1. 
 	int costoResultante = INFINITO;
 	int costoActual;
-	int extremo1;
-	int extremo2;
+	int izquierda;
+	int derecha;
 
+	//TODO: meter en el informe que debe valer la desigualdad triangular.
 	for (int i = 0; i < insertados.size() - 1; i++) {
 		// Si tengo (v1) -- (v2) -- (v3) y estoy parado en (v2) necesito saber hacia dónde avanzar, sino toy yendo para atras y me pierdo para siempre (?).
 		costoActual = g[insertados[i]][elegido] + g[elegido][insertados[i+1]] - g[insertados[i]][insertados[i+1]];
 		if(costoActual < costoResultante) {
 				costoResultante = costoActual;
-				extremo1 = insertados[i];
-				extremo2 = insertados[i+1];
+				izquierda = i;
+				derecha = i+1;
 		}
 	}
 
@@ -116,17 +127,20 @@ void insertarNodo(Grafo &circuitoHamiltoniano, int elegido, Grafo &g, vector<boo
 	costoActual =  g[insertados[insertados.size()-1]][insertados[0]];
 	if(costoActual < costoResultante) {
 		costoResultante = costoActual;
-		extremo1 = insertados[insertados.size()-1];
-		extremo2 = insertados[0];
+		izquierda = insertados.size()-1;
+		derecha = 0;
 	}
 
 	//cout << "\n ahora toy por conectar el nodo " << elegido << "entre los nodos " << extremo1 << " y " << extremo2 <<"\n";
 	//cout << "\n el grafo era este:\n";
 	//imprimirGrafo(circuitoHamiltoniano);
 
-	conectar(circuitoHamiltoniano, extremo1, elegido, g[extremo1][elegido]);
-	conectar(circuitoHamiltoniano, elegido, extremo2, g[elegido][extremo2]);
-	deconectar(circuitoHamiltoniano, extremo1, extremo2);
+	conectar(circuitoHamiltoniano, insertados[extremo1], elegido, g[insertados[extremo1]][elegido]);
+	conectar(circuitoHamiltoniano, elegido, insertados[extremo2], g[elegido][insertados[extremo2]]);
+	deconectar(circuitoHamiltoniano, insertados[extremo1], insertados[extremo2]);
+
+	// queremos meter izquierda - elegido - derecha
+	insertarElementoEnPosicion(insertados, elegido, derecha);
 }
 
 Grafo heuristicaDeInsercion(Grafo g) {
@@ -159,7 +173,8 @@ Grafo heuristicaDeInsercion(Grafo g) {
 		//cout << "el elegido es el nodo numero:" << elegido << "\n"; 
 		visitados[elegido] = true;
 		insertarNodo(circuitoHamiltoniano, elegido, g, visitados, insertados);
-		insertados.push_back(elegido);
+
+
 		//cout << "\nfin iteracion en el while,\n";
 		//cout << "visitados vale:" << visitados[0] << visitados[1] << visitados[2] << visitados[3] << "\n";
 	}
