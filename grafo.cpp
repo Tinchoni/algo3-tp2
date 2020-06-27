@@ -108,6 +108,13 @@ bool esta(int elem, vector<int> v) {
 
 //precondicion: g es hamiltoniano y cualquier arista que no sea parte del ciclo hamilt. debe valer -1.
 vector<int> convertirAListaDeNodos(Grafo g) {
+	// este algoritmo se basa FUERTEMENTE en la idea de que todo nodo en un ciclo hamilt 
+	// tiene 2 y solo 2 adyacentes, a uno lo llamo "desde" y al otro "hasta".
+
+	//la idea basica es moverme hacia el adyacente que no me haya movido ya, es decir,
+	//moverme hacia el adyacente que !esta(ady, recorridos). el adyacente puede ser desde o hasta.
+	//si tanto desde como hasta ya los recorri entonces termine, le di la vuelta al ciclo.
+
 	int n = g.size();
 
 	vector<int> recorridos;
