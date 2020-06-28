@@ -1,9 +1,9 @@
 #include "heuristicas.h"
 
-
 int obtenerElVecinoNoVisitadoMasCercano (int actual, Grafo g, vector<bool> visitados) {
     int n = g.size();
     int elMasCercano = -1;
+
     for(int i = 0; i < n; i++){
         if(
             !visitados[i] && //no se puede volver a visitar nodos 
@@ -12,11 +12,12 @@ int obtenerElVecinoNoVisitadoMasCercano (int actual, Grafo g, vector<bool> visit
             elMasCercano = i;
         }
     }
+
     return elMasCercano;
 }
 
-//heurística constructiva golosa con la idea de "Vecino más cercano"
-Hamiltoniano vecinoMasCercano(Grafo g, int nodoInicial) {
+// Heurística constructiva golosa con la idea de agregar en cada paso al vecino más cercano al último nodo agregado.
+Hamiltoniano heuristicaVecinoMasCercano(Grafo g, int nodoInicial) {
     int n = g.size();
     vector<bool> visitados(n, false);
     Hamiltoniano circuitoHamiltoniano;
@@ -39,6 +40,7 @@ Hamiltoniano vecinoMasCercano(Grafo g, int nodoInicial) {
 
 /*************************************************************************************************************/
 
+// Heurística constructiva golosa con la idea de calcular el AGM, recorrerlo mediante DFS y conectar los nodos según el orden dado por DFS.
 Hamiltoniano heuristicaAGM(Grafo g) {
     int n = g.size();
     Grafo t = AGM(g);
@@ -48,6 +50,7 @@ Hamiltoniano heuristicaAGM(Grafo g) {
 }
 
 /*************************************************************************************************************/
+
 
 int elegirNodo(Grafo &g, vector<bool> &visitados, vector<int> &insertados) {
 	// Como criterio de elección tomaremos el vértice más cercano a un vértice que ya está en el circuito. Sino dsp vemos otro criterio
@@ -109,6 +112,7 @@ void insertarNodo(int elegido, Grafo &g, vector<bool> &visitados, vector<int> &i
 	insertarElementoEnPosicion(insertados, elegido, derecha);
 }
 
+// Heurística constructiva golosa con la idea de formar un ciclo inicial y en cada paso agregar un nodo al ciclo que minimice el costo.
 Hamiltoniano heuristicaDeInsercion(Grafo g) {
 	int n = g.size();
 	Grafo circuitoHamiltoniano(n, vector<Peso>(n, -1));
@@ -123,7 +127,6 @@ Hamiltoniano heuristicaDeInsercion(Grafo g) {
 	insertados.push_back(0);
 	insertados.push_back(1);
 	insertados.push_back(2);
-
 	
 	while(!todosVisitados(visitados)) { // Iteramos hasta que estén todos los nodos insertados en el ciclo, es decir, hasta que estén todos visitados.
 		int elegido = elegirNodo(g, visitados, insertados);
@@ -134,24 +137,71 @@ Hamiltoniano heuristicaDeInsercion(Grafo g) {
 	return insertados;
 }
 
-// vector<Grafo> obtenerSubVecindad(Grafo g, Grafo solucionParcial) {
-// 	int n = g.size();
-// 	//HACER QUE ESTO SEA RANDOM
-// 	// int porcentajeDeLaVecindadAProcesar = 23;
+
+/*************************************************************************************************************/
+vector<int> darVuelta(vector<int> v) {
+	vector<int> dadoVuelta;
+	for (int i = v.size() - 1; i >= 0; i--){
+		dadoVuelta.push_back(v[i]);
+	}
+	return dadoVuelta;
+}
+
+Hamiltoniano dosOpt(Hamiltoniano ciclo, int i, int j) {
+	//ciclo[0:i-1]
+	vector<int> primeraParte = vector<int>(ciclo.begin(), ciclo.begin() + (i-1));
+	//darVuelta(ciclo[i:j])
+	vector<int> medio = darVuelta(vector<int>(ciclo.begin() + i, ciclo.begin() + j));
+	//ciclo[j+1:]
+	vector<int> ultimaParte = vector<int>(ciclo.begin() + j + 1, ciclo.end());
+	//medio += ciclo[j+1:]
+	medio.insert(medio.end(), ultimaParte.begin(), ultimaParte.end());
+	//primeraParte += medio
+	primeraParte.insert(primeraParte.end(), medio.begin(), medio.end());
+	return primeraParte;
+}
+
+vector<Hamiltoniano> obtenerSubVecindad(Hamiltoniano solucionParcial, Grafo g) {
+	vector<Hamiltoniano> vecindad;
+	int n = g.size();
+	int probabilidadDeDescarte = 0.23;
+	default_random_engine generator (42);
+	bernoulli_distribution distribution(probabilidadDeDescarte);
+	for (int i = 0; i < n; i++){
+		for (int j = 0; j < n; j++)
+		{
+			if(!distribution(generator)) {
+				vecindad.push_back(dosOpt(solucionParcial, i, j));
+			}
+		}
+	}
+	return vecindad;
+}
+
+Hamiltoniano obtenerMejorConMemoriaDeSoluciones(vector<Hamiltoniano> &vecinos, vector<Hamiltoniano> &memoria, Grafo g) {
+	vector<Hamiltoniano> vecinosFiltrados;	
+	//saco de los posibles vecinos, aquellos que esten en memoria
+	for (int j = 0; j < vecinos.size(); j++){
+		for (int i = 0; i < memoria.size(); i++){
+			if(!sonIguales(vecinos[j], memoria[i])) {
+				vecinosFiltrados.push_back(vecinos[j]);
+			}
+		}
+	}
 	
-// 	// for (int i = 0; i < n*porcentajeDeLaVecindadAProcesar/100; i++)
-// 	// {
-		
-// 	// }
-	
-// }
 
-// vector<Grafo> dosOpt(Grafo g, Grafo solucionParcial) {
+	int elMejor = 0;
+	for (int i = 1; i < vecinosFiltrados.size(); i++){	
+		if(costo(vecinosFiltrados[i], g) < costo(vecinosFiltrados[elMejor], g)){
+			elMejor = i;
+		}
+	}
+	return vecinosFiltrados[elMejor];
+}
 
-// }
 
-
-Grafo heuristicaTabuSolucionesExploradas(Grafo g, Hamiltoniano solucionInicial(Grafo), bool criterioDeParada(int, int), int tamanioMemoria, vector<Hamiltoniano> obtenerSubVecindad(Hamiltoniano), ) {
+// Metaheurística tabú cuya memoria guarda las últimas soluciones exploradas. 
+Hamiltoniano heuristicaTabuSolucionesExploradas(Grafo g, Hamiltoniano solucionInicial(Grafo), bool criterioDeParada(int, int), int tamanioMemoria, vector<Hamiltoniano> obtenerSubVecindad(Hamiltoniano, Grafo) ) {
 	Hamiltoniano ciclo = solucionInicial(g);
 	Hamiltoniano mejor = ciclo;
 	vector<Hamiltoniano> memoria(tamanioMemoria);
@@ -159,8 +209,8 @@ Grafo heuristicaTabuSolucionesExploradas(Grafo g, Hamiltoniano solucionInicial(G
 	int cantIteracionesSinMejora = 0;
 	int cantIteraciones = 0;
 	while (criterioDeParada(cantIteraciones, cantIteracionesSinMejora)) {
-		vector<Hamiltoniano> vecinos = obtenerSubVecindad(ciclo);
-		ciclo = obtenerMejor(vecinos, memoria);
+		vector<Hamiltoniano> vecinos = obtenerSubVecindad(ciclo, g);
+		ciclo = obtenerMejorConMemoriaDeSoluciones(vecinos, memoria, g);
 		memoria[indiceMasViejoDeLaMemoria] = ciclo;
 		indiceMasViejoDeLaMemoria = (indiceMasViejoDeLaMemoria + 1) % tamanioMemoria;
 		
@@ -173,4 +223,13 @@ Grafo heuristicaTabuSolucionesExploradas(Grafo g, Hamiltoniano solucionInicial(G
 	}
 
 	return mejor;
+}
+
+/*************************************************************************************************************/
+
+
+// Metaheurística tabú cuya memoria guarda los últimos swaps entre pares de aristas. 
+Grafo heuristicaTabuAristasIntercambiadas(Grafo g, int tamanioMemoria, int cantIteracionesSinMejora) {
+
+	return g; // meh
 }

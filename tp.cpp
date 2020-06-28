@@ -6,44 +6,42 @@
 //#include "catch.hpp"
 
 int main(int argc, char** argv) {
-    freopen( "entradaEjemplo", "r", stdin );
-    //bool no_tests = false;
-    //for(int j=1; j<argc; j++){
-    //    if(string(argv[j]) == "--no-tests"){no_tests= true;}
-    //}
+    freopen("entradaEjemplo", "r", stdin);
+    
+    bool no_tests = false;
+    for(int j=1; j<argc; j++){
+       if(string(argv[j]) == "--no-tests"){no_tests= true;}
+    }
 
     Grafo G = leerGrafo();
     cout << "El grafo leido es:\n";
     imprimirGrafo(G);
 
-    Grafo elAGM = AGM(G);
-    cout << "\n\nY su AGM es: \n";
-    imprimirGrafo(elAGM);
+    // Grafo elAGM = AGM(G);
+    // cout << "\n\nY su AGM es: \n";
+    // imprimirGrafo(elAGM);
 
-    Grafo elCircHamiltoniano = vecinoMasCercano(G, 0);
+    Hamiltoniano elCircHamiltoniano = heuristicaVecinoMasCercano(G, 0);
     cout << "\n\nY su Hamiltoniano por vecino mas cercano comenzando en v1 es: \n";
-    imprimirGrafo(elCircHamiltoniano);
+    imprimirHamiltoniano(elCircHamiltoniano, G);
 
     elCircHamiltoniano = heuristicaAGM(G);
     cout << "\n\nY su Hamiltoniano por AGM: \n";
-    imprimirGrafo(elCircHamiltoniano);
+    imprimirHamiltoniano(elCircHamiltoniano, G);
 
-    vector<int> listaDeNodoDelCircHamiltoniano = convertirAListaDeNodos(elCircHamiltoniano);
-    cout<< "listaDeNodoDelCircHamiltoniano: " << listaDeNodoDelCircHamiltoniano.size() << endl;
-    for (size_t i = 0; i < listaDeNodoDelCircHamiltoniano.size(); i++){
-        cout<< "listaDeNodoDelCircHamiltoniano[" << i << "]: " <<listaDeNodoDelCircHamiltoniano[i] + 1<<endl;
-    }
 
     elCircHamiltoniano = heuristicaDeInsercion(G);
     cout << "\n\nY su Hamiltoniano por insercion es: \n";
- 	imprimirGrafo(elCircHamiltoniano);
+ 	imprimirHamiltoniano(elCircHamiltoniano, G);
 
-    listaDeNodoDelCircHamiltoniano = convertirAListaDeNodos(elCircHamiltoniano);
-    cout<< "listaDeNodoDelCircHamiltoniano: " << listaDeNodoDelCircHamiltoniano.size() << endl;
-    for (size_t i = 0; i < listaDeNodoDelCircHamiltoniano.size(); i++){
-        cout<< "listaDeNodoDelCircHamiltoniano[" << i << "]: " <<listaDeNodoDelCircHamiltoniano[i] + 1<<endl;
-    }
-    
+    elCircHamiltoniano = heuristicaTabuSolucionesExploradas(
+                        G, 
+                        heuristicaAGM, 
+                        [](int cantIteraciones, int cantIteracionesSinMejora){ return cantIteraciones > 1000; },
+                        100,
+                        obtenerSubVecindad );
+    cout << "\n\nY su Hamiltoniano por tabu con memoria de sols exploradas es: \n";
+    imprimirHamiltoniano(elCircHamiltoniano, G);
 
     //if(!no_tests) {
     //    Catch::Session().run();
@@ -58,7 +56,7 @@ TEST_CASE("Instancia ejemplo", "[Goloso - Vecino mas cercano]") {
     
     Grafo g = leerGrafo();
     
-    Grafo elCircHamiltoniano = vecinoMasCercano(g, 0);
+    Grafo elCircHamiltoniano = heuristicaVecinoMasCercano(g, 0);
     
     Grafo deberiaValer(g.size(), vector<Peso>(g.size(), -1));
     conectar(deberiaValer, 0, 1, 10);
@@ -73,7 +71,7 @@ TEST_CASE("Instancia ejemplo", "[Goloso - Vecino mas cercano]") {
     
     REQUIRE(esIgual(deberiaValer, elCircHamiltoniano));
 
-    elCircHamiltoniano = vecinoMasCercano(g, 1);
+    elCircHamiltoniano = heuristicaVecinoMasCercano(g, 1);
     
     deberiaValer = Grafo(g.size(), vector<Peso>(g.size(), -1));
     conectar(deberiaValer, 1, 0, 10);
@@ -87,7 +85,7 @@ TEST_CASE("Instancia ejemplo", "[Goloso - Vecino mas cercano]") {
 
     REQUIRE(esIgual(deberiaValer, elCircHamiltoniano));
 
-    elCircHamiltoniano = vecinoMasCercano(g, 2);
+    elCircHamiltoniano = heuristicaVecinoMasCercano(g, 2);
     
     deberiaValer = Grafo(g.size(), vector<Peso>(g.size(), -1));
     conectar(deberiaValer, 2, 0, 15);
@@ -101,7 +99,7 @@ TEST_CASE("Instancia ejemplo", "[Goloso - Vecino mas cercano]") {
 
     REQUIRE(esIgual(deberiaValer, elCircHamiltoniano));
 
-    elCircHamiltoniano = vecinoMasCercano(g, 3);
+    elCircHamiltoniano = heuristicaVecinoMasCercano(g, 3);
     
     deberiaValer = Grafo(g.size(), vector<Peso>(g.size(), -1));
     conectar(deberiaValer, 3, 0, 20);

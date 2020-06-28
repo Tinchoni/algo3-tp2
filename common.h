@@ -5,7 +5,9 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <math.h>
+#include <stdlib.h>
+#include <random>
+
 using namespace std;
 
 #define INFINITO 10e6

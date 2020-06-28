@@ -28,11 +28,10 @@ bool esIgual(Grafo a, Grafo b) {
 	return true;
 }
 
-
 void imprimirGrafo(Grafo g) {
 	cout << "   ";
 	for(int i = 0; i< g.size(); i++) {
-		cout << i + 1<< "\t";
+		cout << i << "\t";
 	}
 	cout << "\n";
 	cout << "  ";
@@ -43,13 +42,12 @@ void imprimirGrafo(Grafo g) {
 
     for (int i = 0; i < g.size(); i++)
     {
-        cout << i + 1 << "| ";
+        cout << i << "| ";
         for (int j = 0; j < g[i].size(); j++)
         {
             cout << g[i][j] << "\t\n"[j == g.size() - 1]; 
         }
     }
-    
 }
 
 void conectar(Grafo &g, int i, int j, int pesoDeLaArista) {
@@ -57,34 +55,39 @@ void conectar(Grafo &g, int i, int j, int pesoDeLaArista) {
 	g[j][i] = pesoDeLaArista;
 }
 
-void deconectar(Grafo &g, int i, int j) {
+void desconectar(Grafo &g, int i, int j) {
 	g[i][j] = -1;
 	g[j][i] = -1;
 }
 
 bool todosVisitados(vector<bool> visitado) {
 	bool res = true;
+
 	for(int i = 0; i < visitado.size() ; i++) {
 		res = res && visitado[i];
 	}
+
 	return res;
 }
 
 int nodoDeMenorDistancia(Grafo g, int n, vector<bool> visitado, vector<int> distancia) {
 	int min = INFINITO;
 	int res;
+
 	for(int i = 0; i < n; i++) {
 		if(distancia[i] < res && !visitado[i]) {
 			min = distancia[i];
 			res = i;
 		}
 	}
+
 	return res;
 }
 
 void vecinos(Grafo g, int i, int &deDondeVengo, int &aDondeVoy) {
 	deDondeVengo = -1;
 	aDondeVoy = -1;
+
 	for (int j = 0; j < g.size(); j++){
 		if(g[i][j] != -1){
 			if(deDondeVengo == -1) {
@@ -103,6 +106,7 @@ bool esta(int elem, vector<int> v) {
 			return true;
 		}
 	}
+
 	return false;
 }
 
@@ -116,7 +120,6 @@ vector<int> convertirAListaDeNodos(Grafo g) {
 	//si tanto desde como hasta ya los recorri entonces termine, le di la vuelta al ciclo.
 
 	int n = g.size();
-
 	vector<int> recorridos;
 	int desde = 0;
 	int hasta = 0;
@@ -133,14 +136,17 @@ vector<int> convertirAListaDeNodos(Grafo g) {
 			termine = true;
 		}
 	}
+
 	return recorridos;
 }
 
 Grafo convertirAGrafo(vector<int> padre, Grafo g){
 	Grafo res(g.size(), vector<Peso>(g.size(), -1));
+
 	for(int i = 1; i < padre.size(); i++) {
 		conectar(res, padre[i], i, g[padre[i]][i]);
 	}
+
 	return res;
 }
 
@@ -158,7 +164,6 @@ Grafo AGM(Grafo g) {
 			padre[i] = inicial;
 		}
 	}
-
 	distancia[inicial] = 0;
 	visitado[inicial] = true;
 
@@ -173,37 +178,29 @@ Grafo AGM(Grafo g) {
 			}
 		}
 	}
-
 	// en este punto ya tengo padres, que es la sucesion de nodos que me arman el AGM. Lo transformo a lista de adyacencias y listorti:
 	Grafo res = convertirAGrafo(padre, g);
+
 	return res;
 }
 
-
 void DFSAux(Grafo g, int v,vector<bool> &visitados,vector<int> &orden) {
-
     visitados[v] = true;
     orden.push_back(v);
 
-    for (int i = 0; i < g[v].size(); i++)
-    {
+    for (int i = 0; i < g[v].size(); i++){
         if (g[v][i] >= 0 && !visitados[i]) {
             DFSAux(g,i,visitados,orden);
         } 
     }
-    
-
 }
 
 // Dado un grafo G devuelve el orden en el que recorre los nodos sin repetir
 vector<int> DFS(Grafo g,int v) {
-
     vector<bool> visitados =  vector<bool>(g.size(),false);
-
     vector<int> orden = vector<int>();
 
     DFSAux(g,v,visitados,orden);
 
     return orden;
-
 }
