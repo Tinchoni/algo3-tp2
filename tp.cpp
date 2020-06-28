@@ -6,7 +6,7 @@
 //#include "catch.hpp"
 
 int main(int argc, char** argv) {
-    freopen("entradaEjemplo", "r", stdin);
+    freopen("completo100.txt", "r", stdin);
     
     bool no_tests = false;
     for(int j=1; j<argc; j++){
@@ -37,8 +37,8 @@ int main(int argc, char** argv) {
     elCircHamiltoniano = heuristicaTabuSolucionesExploradas(
                         G, 
                         heuristicaAGM, 
-                        [](int cantIteraciones, int cantIteracionesSinMejora){ return cantIteraciones > 1000; },
-                        100,
+                        [](int cantIteraciones, int cantIteracionesSinMejora){ return cantIteraciones < 1000; },
+                        10,
                         obtenerSubVecindad );
     cout << "\n\nY su Hamiltoniano por tabu con memoria de sols exploradas es: \n";
     imprimirHamiltoniano(elCircHamiltoniano, G);

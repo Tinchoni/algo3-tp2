@@ -1,4 +1,5 @@
 #include "heuristicas.h"
+#include <random>
 
 int obtenerElVecinoNoVisitadoMasCercano (int actual, Grafo g, vector<bool> visitados) {
     int n = g.size();
@@ -148,30 +149,48 @@ vector<int> darVuelta(vector<int> v) {
 }
 
 Hamiltoniano dosOpt(Hamiltoniano ciclo, int i, int j) {
-	//ciclo[0:i-1]
-	vector<int> primeraParte = vector<int>(ciclo.begin(), ciclo.begin() + (i-1));
+
+    //cout << "DosOpt: " << "Llegé a 0" << endl;
+    vector<int> primeraParte;
+    vector<int> ultimaParte;
+    if (i != 0){
+        //ciclo[0:i-1]
+	    vector<int> primeraParte = vector<int>(ciclo.begin(), ciclo.begin() + (i-1));
+    }
+    //cout << "DosOpt: " << "Llegé a 1" << endl;
 	//darVuelta(ciclo[i:j])
 	vector<int> medio = darVuelta(vector<int>(ciclo.begin() + i, ciclo.begin() + j));
 	//ciclo[j+1:]
-	vector<int> ultimaParte = vector<int>(ciclo.begin() + j + 1, ciclo.end());
+    //cout << "DosOpt: " << "Llegé a 2" << endl;
+    if (j != ciclo.size()) {
+        vector<int> ultimaParte = vector<int>(ciclo.begin() + j + 1, ciclo.end());
+    }
+
+    //cout << "DosOpt: " << "Llegé a 3" << endl;
 	//medio += ciclo[j+1:]
 	medio.insert(medio.end(), ultimaParte.begin(), ultimaParte.end());
+        //cout << "DosOpt: " << "Llegé a 4" << endl;
 	//primeraParte += medio
 	primeraParte.insert(primeraParte.end(), medio.begin(), medio.end());
 	return primeraParte;
 }
 
 vector<Hamiltoniano> obtenerSubVecindad(Hamiltoniano solucionParcial, Grafo g) {
+    cout << "SolParcialLen :" << solucionParcial.size() << endl;
 	vector<Hamiltoniano> vecindad;
 	int n = g.size();
-	int probabilidadDeDescarte = 0.23;
+	float probabilidadDeDescarte = 0.23;
 	default_random_engine generator (42);
 	bernoulli_distribution distribution(probabilidadDeDescarte);
+    cout << "SubVecindad - Ciclo -1 : " << "Llegé a 0" << endl;
 	for (int i = 0; i < n; i++){
-		for (int j = 0; j < n; j++)
+		for (int j = i+1; j < n; j++)
 		{
+           // cout << "SubVecindad - Ciclo " << i << "-" << j << ": " << "Llegé a 1" << endl;
 			if(!distribution(generator)) {
-				vecindad.push_back(dosOpt(solucionParcial, i, j));
+               // cout << "SubVecindad - Ciclo " << i << "-" << j << ": " << "Llegé a 2" << endl;
+                Hamiltoniano sol2opt = dosOpt(solucionParcial, i, j);
+				vecindad.push_back(sol2opt);
 			}
 		}
 	}
@@ -182,11 +201,14 @@ Hamiltoniano obtenerMejorConMemoriaDeSoluciones(vector<Hamiltoniano> &vecinos, v
 	vector<Hamiltoniano> vecinosFiltrados;	
 	//saco de los posibles vecinos, aquellos que esten en memoria
 	for (int j = 0; j < vecinos.size(); j++){
+        bool agrego = true;
 		for (int i = 0; i < memoria.size(); i++){
-			if(!sonIguales(vecinos[j], memoria[i])) {
-				vecinosFiltrados.push_back(vecinos[j]);
-			}
+            if(memoria[i].size() != 0) {
+			    agrego = agrego && !sonIguales(vecinos[j], memoria[i]); 
+            }
+
 		}
+        if (agrego) vecinosFiltrados.push_back(vecinos[j]);
 	}
 	
 
@@ -204,16 +226,19 @@ Hamiltoniano obtenerMejorConMemoriaDeSoluciones(vector<Hamiltoniano> &vecinos, v
 Hamiltoniano heuristicaTabuSolucionesExploradas(Grafo g, Hamiltoniano solucionInicial(Grafo), bool criterioDeParada(int, int), int tamanioMemoria, vector<Hamiltoniano> obtenerSubVecindad(Hamiltoniano, Grafo) ) {
 	Hamiltoniano ciclo = solucionInicial(g);
 	Hamiltoniano mejor = ciclo;
-	vector<Hamiltoniano> memoria(tamanioMemoria);
+	vector<Hamiltoniano> memoria(tamanioMemoria,vector<int>{});
 	int indiceMasViejoDeLaMemoria = 0;
 	int cantIteracionesSinMejora = 0;
 	int cantIteraciones = 0;
 	while (criterioDeParada(cantIteraciones, cantIteracionesSinMejora)) {
+        cout << "Ciclo " << cantIteraciones << ": " << "Llegé a 0" << endl;
 		vector<Hamiltoniano> vecinos = obtenerSubVecindad(ciclo, g);
+        cout << "Ciclo " << cantIteraciones << ": " << "Llegé a 1" << endl;
 		ciclo = obtenerMejorConMemoriaDeSoluciones(vecinos, memoria, g);
+        cout << "Ciclo " << cantIteraciones << ": " << "Llegé a 2" << endl;
 		memoria[indiceMasViejoDeLaMemoria] = ciclo;
 		indiceMasViejoDeLaMemoria = (indiceMasViejoDeLaMemoria + 1) % tamanioMemoria;
-		
+        cout << "Ciclo " << cantIteraciones << ": " << "Llegé a 3" << endl;
 		if(costo(ciclo, g) < costo(mejor, g)) {
 			mejor = ciclo;
 		} else {

@@ -8,7 +8,7 @@ Grafo leerGrafo() {
     for (int i = 0; i < m; i++) {
         int v, w, peso;
         cin >> v >> w >> peso;
-		conectar(G, v-1, w-1, peso);
+		conectar(G, v, w, peso);
     }
     for(int i = 0; i < G.size(); i++) {
     	G[i][i] = 0;
