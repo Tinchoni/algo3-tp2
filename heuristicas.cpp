@@ -155,15 +155,15 @@ Hamiltoniano dosOpt(Hamiltoniano ciclo, int i, int j) {
     vector<int> ultimaParte;
     if (i != 0){
         //ciclo[0:i-1]
-	    vector<int> primeraParte = vector<int>(ciclo.begin(), ciclo.begin() + (i-1));
+	    primeraParte = vector<int>(ciclo.begin(), ciclo.begin() + i);
     }
     //cout << "DosOpt: " << "Llegé a 1" << endl;
 	//darVuelta(ciclo[i:j])
-	vector<int> medio = darVuelta(vector<int>(ciclo.begin() + i, ciclo.begin() + j));
+	vector<int> medio = darVuelta(vector<int>(ciclo.begin() + i, ciclo.begin() + j + 1));
 	//ciclo[j+1:]
     //cout << "DosOpt: " << "Llegé a 2" << endl;
     if (j != ciclo.size()) {
-        vector<int> ultimaParte = vector<int>(ciclo.begin() + j + 1, ciclo.end());
+        ultimaParte = vector<int>(ciclo.begin() + j + 1, ciclo.end());
     }
 
     //cout << "DosOpt: " << "Llegé a 3" << endl;
@@ -176,13 +176,13 @@ Hamiltoniano dosOpt(Hamiltoniano ciclo, int i, int j) {
 }
 
 vector<Hamiltoniano> obtenerSubVecindad(Hamiltoniano solucionParcial, Grafo g) {
-    cout << "SolParcialLen :" << solucionParcial.size() << endl;
+    // cout << "SolParcialLen :" << solucionParcial.size() << endl;
 	vector<Hamiltoniano> vecindad;
 	int n = g.size();
-	float probabilidadDeDescarte = 0.23;
+	float probabilidadDeDescarte = 0.8;
 	default_random_engine generator (42);
 	bernoulli_distribution distribution(probabilidadDeDescarte);
-    cout << "SubVecindad - Ciclo -1 : " << "Llegé a 0" << endl;
+    // cout << "SubVecindad - Ciclo -1 : " << "Llegé a 0" << endl;
 	for (int i = 0; i < n; i++){
 		for (int j = i+1; j < n; j++)
 		{
@@ -190,6 +190,7 @@ vector<Hamiltoniano> obtenerSubVecindad(Hamiltoniano solucionParcial, Grafo g) {
 			if(!distribution(generator)) {
                // cout << "SubVecindad - Ciclo " << i << "-" << j << ": " << "Llegé a 2" << endl;
                 Hamiltoniano sol2opt = dosOpt(solucionParcial, i, j);
+				
 				vecindad.push_back(sol2opt);
 			}
 		}
@@ -231,14 +232,14 @@ Hamiltoniano heuristicaTabuSolucionesExploradas(Grafo g, Hamiltoniano solucionIn
 	int cantIteracionesSinMejora = 0;
 	int cantIteraciones = 0;
 	while (criterioDeParada(cantIteraciones, cantIteracionesSinMejora)) {
-        cout << "Ciclo " << cantIteraciones << ": " << "Llegé a 0" << endl;
+        // cout << "Ciclo " << cantIteraciones << ": " << "Llegé a 0" << endl;
 		vector<Hamiltoniano> vecinos = obtenerSubVecindad(ciclo, g);
-        cout << "Ciclo " << cantIteraciones << ": " << "Llegé a 1" << endl;
+        // cout << "Ciclo " << cantIteraciones << ": " << "Llegé a 1" << endl;
 		ciclo = obtenerMejorConMemoriaDeSoluciones(vecinos, memoria, g);
-        cout << "Ciclo " << cantIteraciones << ": " << "Llegé a 2" << endl;
+        // cout << "Ciclo " << cantIteraciones << ": " << "Llegé a 2" << endl;
 		memoria[indiceMasViejoDeLaMemoria] = ciclo;
 		indiceMasViejoDeLaMemoria = (indiceMasViejoDeLaMemoria + 1) % tamanioMemoria;
-        cout << "Ciclo " << cantIteraciones << ": " << "Llegé a 3" << endl;
+        // cout << "Ciclo " << cantIteraciones << ": " << "Llegé a 3" << endl;
 		if(costo(ciclo, g) < costo(mejor, g)) {
 			mejor = ciclo;
 		} else {
