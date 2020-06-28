@@ -1,10 +1,11 @@
 #ifndef HEURISTICAS_H_
 #define HEURISTICAS_H_
 
+#include "hamiltoniano.h"
 #include "grafo.h"
 
-Grafo vecinoMasCercano(Grafo g, int nodoInicial);
-Grafo heuristicaAGM(Grafo g);
-Grafo heuristicaDeInsercion(Grafo g);
+Hamiltoniano vecinoMasCercano(Grafo g, int nodoInicial);
+Hamiltoniano heuristicaAGM(Grafo g);
+Hamiltoniano heuristicaDeInsercion(Grafo g);
 
 #endif
