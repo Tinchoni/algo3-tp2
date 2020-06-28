@@ -1,9 +1,9 @@
 #include "heuristicas.h"
 
-
 int obtenerElVecinoNoVisitadoMasCercano (int actual, Grafo g, vector<bool> visitados) {
     int n = g.size();
     int elMasCercano = -1;
+
     for(int i = 0; i < n; i++){
         if(
             !visitados[i] && //no se puede volver a visitar nodos 
@@ -12,11 +12,12 @@ int obtenerElVecinoNoVisitadoMasCercano (int actual, Grafo g, vector<bool> visit
             elMasCercano = i;
         }
     }
+
     return elMasCercano;
 }
 
-//heurística constructiva golosa con la idea de "Vecino más cercano"
-Grafo vecinoMasCercano(Grafo g, int nodoInicial) {
+// Heurística constructiva golosa con la idea de agregar en cada paso al vecino más cercano al último nodo agregado.
+Grafo heuristicaVecinoMasCercano(Grafo g, int nodoInicial) {
     int n = g.size();
     vector<bool> visitados(n, false);
     Grafo circuitoHamiltoniano(n, vector<Peso>(n, -1));
@@ -27,53 +28,22 @@ Grafo vecinoMasCercano(Grafo g, int nodoInicial) {
     while(!todosVisitados(visitados)) {
         int elMasCercano = obtenerElVecinoNoVisitadoMasCercano(actual, g, visitados);
         conectar(circuitoHamiltoniano, actual, elMasCercano, g[actual][elMasCercano]);
-        
         actual = elMasCercano;
         visitados[actual] = true;
     }
-
     //conecto el ultimo con el primero
     conectar(circuitoHamiltoniano, actual, nodoInicial, g[actual][nodoInicial]);
 
-    for (size_t i = 0; i < n; i++)
-    {
+    for (size_t i = 0; i < n; i++) {
         conectar(circuitoHamiltoniano, i, i, 0);
     }
 
     return circuitoHamiltoniano;
 }
 
-/*************************************************************************************************************/
-
-Grafo heuristicaAGM(Grafo g) {
-    int n = g.size();
-    Grafo t = AGM(g);
-    vector<int> ordDFS = DFS(t,0);
-    Grafo circuitoHamiltoniano(n, vector<Peso>(n, -1));
-
-    //for (size_t i = 0; i < n; i++)
-    //{
-    //   cout << ordDFS[i];
-    //}
-
-    for (int i = 1; i < n; i++)
-    {
-        int desde = ordDFS[i-1];
-        int hasta = ordDFS[i];
-        conectar(circuitoHamiltoniano,desde,hasta,g[desde][hasta]);
-    }
-    
-    conectar(circuitoHamiltoniano,ordDFS[0],ordDFS[n-1],g[ordDFS[0]][ordDFS[n-1]]);
-
-    // for (size_t i = 0; i < n; i++)  {
-    //     conectar(circuitoHamiltoniano, i, i, 0);
-    // }
-
-    return circuitoHamiltoniano;
-
-}
 
 /*************************************************************************************************************/
+
 
 int elegirNodo(Grafo &g, vector<bool> &visitados, vector<int> &insertados) {
 	// Como criterio de elección tomaremos el vértice más cercano a un vértice que ya está en el circuito. Sino dsp vemos otro criterio
@@ -133,23 +103,17 @@ void insertarNodo(Grafo &circuitoHamiltoniano, int elegido, Grafo &g, vector<boo
 
 	conectar(circuitoHamiltoniano, insertados[izquierda], elegido, g[insertados[izquierda]][elegido]);
 	conectar(circuitoHamiltoniano, elegido, insertados[derecha], g[elegido][insertados[derecha]]);
-	deconectar(circuitoHamiltoniano, insertados[izquierda], insertados[derecha]);
+	desconectar(circuitoHamiltoniano, insertados[izquierda], insertados[derecha]);
 
-	// queremos meter izquierda - elegido - derecha
 	insertarElementoEnPosicion(insertados, elegido, derecha);
 }
 
+// Heurística constructiva golosa con la idea de formar un ciclo inicial y en cada paso agregar un nodo al ciclo que minimice el costo.
 Grafo heuristicaDeInsercion(Grafo g) {
 	int n = g.size();
 	Grafo circuitoHamiltoniano(n, vector<Peso>(n, -1));
 	vector<bool> visitados(n, false);
 	vector<int> insertados; // vector en el que el nodo i es adyacente a los nodos i-1 e i+1. Capaz ya podemos volar el vector visitados pero por ahora lo dejo.
-
-	// decidimos no ponerle 0s a la diagonal porque el elemento i no tiene aristas consigo mismo.
-	// for (size_t i = 0; i < n; i++)  {
-    //     conectar(circuitoHamiltoniano, i, i, 0);
-    // }
-
 
 	//elegimos 3 nodos cualesquiera para formar un ciclo inicial. En particular, tomamos los primeros 3 nodos:
 	conectar(circuitoHamiltoniano, 0, 1, g[0][1]);
@@ -161,7 +125,6 @@ Grafo heuristicaDeInsercion(Grafo g) {
 	insertados.push_back(0);
 	insertados.push_back(1);
 	insertados.push_back(2);
-
 	
 	while(!todosVisitados(visitados)) { // Iteramos hasta que estén todos los nodos insertados en el ciclo, es decir, hasta que estén todos visitados.
 		int elegido = elegirNodo(g, visitados, insertados);
@@ -172,41 +135,82 @@ Grafo heuristicaDeInsercion(Grafo g) {
 	return circuitoHamiltoniano;
 }
 
-// vector<Grafo> obtenerSubVecindad(Grafo g, Grafo solucionParcial) {
-// 	int n = g.size();
-// 	//HACER QUE ESTO SEA RANDOM
-// 	// int porcentajeDeLaVecindadAProcesar = 23;
+
+/*************************************************************************************************************/
+
+
+// Heurística constructiva golosa con la idea de calcular el AGM, recorrerlo mediante DFS y conectar los nodos según el orden dado por DFS.
+Grafo heuristicaAGM(Grafo g) {
+    int n = g.size();
+    Grafo t = AGM(g);
+    vector<int> ordDFS = DFS(t,0);
+    Grafo circuitoHamiltoniano(n, vector<Peso>(n, -1));
+
+    for (int i = 1; i < n; i++) {
+        int desde = ordDFS[i-1];
+        int hasta = ordDFS[i];
+        conectar(circuitoHamiltoniano,desde,hasta,g[desde][hasta]);
+    }
+    
+    conectar(circuitoHamiltoniano,ordDFS[0],ordDFS[n-1],g[ordDFS[0]][ordDFS[n-1]]);
+    return circuitoHamiltoniano;
+
+}
+
+
+/*************************************************************************************************************/
+
+
+vector<Grafo> obtenerSubVecindad(Grafo g, Grafo solucionParcial) {
+	int n = g.size();
+	//HACER QUE ESTO SEA RANDOM
+	// int porcentajeDeLaVecindadAProcesar = 23;
 	
-// 	// for (int i = 0; i < n*porcentajeDeLaVecindadAProcesar/100; i++)
-// 	// {
+	// for (int i = 0; i < n*porcentajeDeLaVecindadAProcesar/100; i++)
+	// {
 		
-// 	// }
-	
-// }
+	// }
+}
 
-// vector<Grafo> dosOpt(Grafo g, Grafo solucionParcial) {
+vector<Grafo> dosOpt(Grafo g, Grafo solucionParcial) {
+	// TODO.
+}
 
-// }
+Grafo obtenerMejor(vector<Grafo> &vecinos, vector<Grafo> &memoria) {
+	// SUPER TODO.
+}
 
 
-// Grafo heuristicaTabuSolucionesExploradas(Grafo g, int tamanioMemoria, int cantIteracionesSinMejora) {
-// 	Grafo ciclo = heuristicaAGM(g);
-// 	Grafo mejor = ciclo;
-// 	vector<Grafo> memoria(tamanioMemoria);
-// 	int indiceMasViejoDeLaMemoria = 0;
-// 	int haceXIteracionesQueNoMejora = 0;
-// 	while (haceXIteracionesQueNoMejora < cantIteracionesSinMejora) {
-// 		vector<Grafo> vecinos = obtenerSubVecindad(g, ciclo);
-// 		ciclo = obtenerMejor(vecinos, memoria);
-// 		memoria[indiceMasViejoDeLaMemoria] = ciclo;
-// 		indiceMasViejoDeLaMemoria = (indiceMasViejoDeLaMemoria + 1) % tamanioMemoria;
+// Metaheurística tabú cuya memoria guarda las últimas soluciones exploradas. 
+Grafo heuristicaTabuSolucionesExploradas(Grafo g, int tamanioMemoria, int cantIteracionesSinMejora) {
+	Grafo ciclo = heuristicaAGM(g);
+	Grafo mejor = ciclo;
+	vector<Grafo> memoria(tamanioMemoria);
+	int indiceMasViejoDeLaMemoria = 0;
+	int haceXIteracionesQueNoMejora = 0;
+
+	while (haceXIteracionesQueNoMejora < cantIteracionesSinMejora) {
+		vector<Grafo> vecinos = obtenerSubVecindad(g, ciclo);
+		ciclo = obtenerMejor(vecinos, memoria);
+		memoria[indiceMasViejoDeLaMemoria] = ciclo;
+		indiceMasViejoDeLaMemoria = (indiceMasViejoDeLaMemoria + 1) % tamanioMemoria;
 		
-// 		if(costo(ciclo) < costo(mejor)) {
-// 			mejor = ciclo;
-// 		} else {
-// 			haceXIteracionesQueNoMejora++;
-// 		}
-// 	}
+		if(costo(ciclo) < costo(mejor)) {
+			mejor = ciclo;
+		} else {
+			haceXIteracionesQueNoMejora++;
+		}
+	}
 
-// 	return mejor;
-// }
+	return mejor;
+}
+
+
+/*************************************************************************************************************/
+
+
+// Metaheurística tabú cuya memoria guarda los últimos swaps entre pares de aristas. 
+Grafo heuristicaTabuAristasIntercambiadas(Grafo g, int tamanioMemoria, int cantIteracionesSinMejora) {
+
+	return g; // meh
+}
