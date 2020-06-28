@@ -1,6 +1,6 @@
 #include "heuristicas.h"
 #include <random>
-
+#include<algorithm> 
 int obtenerElVecinoNoVisitadoMasCercano (int actual, Grafo g, vector<bool> visitados) {
     int n = g.size();
     int elMasCercano = -1;
@@ -150,29 +150,9 @@ vector<int> darVuelta(vector<int> v) {
 
 Hamiltoniano dosOpt(Hamiltoniano ciclo, int i, int j) {
 
-    //cout << "DosOpt: " << "Llegé a 0" << endl;
-    vector<int> primeraParte;
-    vector<int> ultimaParte;
-    if (i != 0){
-        //ciclo[0:i-1]
-	    primeraParte = vector<int>(ciclo.begin(), ciclo.begin() + i);
-    }
-    //cout << "DosOpt: " << "Llegé a 1" << endl;
-	//darVuelta(ciclo[i:j])
-	vector<int> medio = darVuelta(vector<int>(ciclo.begin() + i, ciclo.begin() + j + 1));
-	//ciclo[j+1:]
-    //cout << "DosOpt: " << "Llegé a 2" << endl;
-    if (j != ciclo.size()) {
-        ultimaParte = vector<int>(ciclo.begin() + j + 1, ciclo.end());
-    }
-
-    //cout << "DosOpt: " << "Llegé a 3" << endl;
-	//medio += ciclo[j+1:]
-	medio.insert(medio.end(), ultimaParte.begin(), ultimaParte.end());
-        //cout << "DosOpt: " << "Llegé a 4" << endl;
-	//primeraParte += medio
-	primeraParte.insert(primeraParte.end(), medio.begin(), medio.end());
-	return primeraParte;
+	std::reverse(ciclo.begin() + i, ciclo.begin() + j + 1);
+    return ciclo;
+    
 }
 
 vector<Hamiltoniano> obtenerSubVecindad(Hamiltoniano solucionParcial, Grafo g) {

@@ -36,9 +36,9 @@ int main(int argc, char** argv) {
 
     elCircHamiltoniano = heuristicaTabuSolucionesExploradas(
                         G, 
-                        heuristicaAGM, 
-                        [](int cantIteraciones, int cantIteracionesSinMejora){ return cantIteraciones < 1000; },
-                        10,
+                        [](Grafo g){return heuristicaVecinoMasCercano(g,0);}, 
+                        [](int cantIteraciones, int cantIteracionesSinMejora){ return cantIteraciones < 500; },
+                        50,
                         obtenerSubVecindad );
     cout << "\n\nY su Hamiltoniano por tabu con memoria de sols exploradas es: \n";
     imprimirHamiltoniano(elCircHamiltoniano, G);
