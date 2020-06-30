@@ -1,51 +1,88 @@
 #include "common.h"
 #include "grafo.h"
 #include "heuristicas.h"
+#include "argparse.hpp"
+#include <chrono>
 
 //#define CATCH_CONFIG_RUNNER
 //#include "catch.hpp"
 
-int main(int argc, char** argv) {
-    freopen("completo100.txt", "r", stdin);
+int main(int argc, const char** argv) {
+    //freopen("completo100.txt", "r", stdin);
     
-    bool no_tests = false;
-    for(int j=1; j<argc; j++){
-       if(string(argv[j]) == "--no-tests"){no_tests= true;}
+    //ArgParser
+    ArgumentParser parser;
+
+    
+    parser.addArgument("-a","--algoritmo",1,false);
+
+
+    //Parametros para TABU Search
+    parser.addArgument("-s","--solInicial",1);
+    parser.addArgument("-m","--tamanioMemoria",1);
+    parser.addArgument("-p","--criterioParada",1);
+    parser.addArgument("-i","--itParada",1);
+    //Valido Parametros
+    parser.parse(argc, argv);
+
+    Grafo g = leerGrafo();
+    Hamiltoniano res;
+
+
+    string algo = parser.retrieve<string>("algoritmo");
+
+    auto start = chrono::steady_clock::now();
+    if (algo == "VecinoMasCercano") {
+        res = heuristicaVecinoMasCercano(g,0);
+    } else if (algo == "Insercion") {
+        res = heuristicaDeInsercion(g);
+    } else if (algo == "AGM") {
+        res = heuristicaAGM(g);
+    } else if (algo == "Tabu"){
+
+        // Que algoritmo uso para la solucion inicial? Default: AGM
+        string algoInicial = parser.retrieve<string>("solInicial");
+        auto solInicial = heuristicaAGM;
+        
+        if (algoInicial == "Insercion") {
+            solInicial = heuristicaDeInsercion; 
+        }  else if (algoInicial == "VecinoMasCercano")  {
+            solInicial = [](Grafo g){return heuristicaVecinoMasCercano(g,0);};
+        }
+
+        // Qué criterio de parada uso? Default: cantIteraciones -- Posibles {cantIteraciones,cantIteracionesSinMejora}
+        string argCriterioParada = parser.retrieve<string>("criterioParada");
+
+        // Cuántas iteraciones? Default: 500
+        string argIter = parser.retrieve<string>("itParada");
+        int itParada;
+        if (argIter != "") {
+            itParada = stoi(parser.retrieve<string>("itParada"));
+        } else {
+            itParada = 500;
+        }
+
+
+        int tamanioMemoria = stoi(parser.retrieve<string>("tamanioMemoria"));
+        //para tabu vuelvo a tomar el tiempo acá para no tomar en cuenta el tiempo que me lleva parsear todos los paramettros
+        start = chrono::steady_clock::now();
+        
+        res = heuristicaTabuSolucionesExploradas(
+                g, 
+                solInicial, 
+                argCriterioParada,
+                itParada,
+                tamanioMemoria,
+                obtenerSubVecindad );
     }
 
-    Grafo G = leerGrafo();
-    cout << "El grafo leido es:\n";
-    imprimirGrafo(G);
+    
+    auto end = chrono::steady_clock::now();
+	double total_time = chrono::duration<double, milli>(end - start).count();
 
-    // Grafo elAGM = AGM(G);
-    // cout << "\n\nY su AGM es: \n";
-    // imprimirGrafo(elAGM);
-
-    Hamiltoniano elCircHamiltoniano = heuristicaVecinoMasCercano(G, 0);
-    cout << "\n\nY su Hamiltoniano por vecino mas cercano comenzando en v1 es: \n";
-    imprimirHamiltoniano(elCircHamiltoniano, G);
-
-    elCircHamiltoniano = heuristicaAGM(G);
-    cout << "\n\nY su Hamiltoniano por AGM: \n";
-    imprimirHamiltoniano(elCircHamiltoniano, G);
-
-
-    elCircHamiltoniano = heuristicaDeInsercion(G);
-    cout << "\n\nY su Hamiltoniano por insercion es: \n";
- 	imprimirHamiltoniano(elCircHamiltoniano, G);
-
-    elCircHamiltoniano = heuristicaTabuSolucionesExploradas(
-                        G, 
-                        [](Grafo g){return heuristicaVecinoMasCercano(g,0);}, 
-                        [](int cantIteraciones, int cantIteracionesSinMejora){ return cantIteraciones < 500; },
-                        50,
-                        obtenerSubVecindad );
-    cout << "\n\nY su Hamiltoniano por tabu con memoria de sols exploradas es: \n";
-    imprimirHamiltoniano(elCircHamiltoniano, G);
-
-    //if(!no_tests) {
-    //    Catch::Session().run();
-    //}
+	// Imprimimos el tiempo de ejecución por stderr.
+	clog << total_time << endl;
+    imprimirHamiltoniano(res,g);
 
     return 0;
 }

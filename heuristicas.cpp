@@ -204,22 +204,24 @@ Hamiltoniano obtenerMejorConMemoriaDeSoluciones(vector<Hamiltoniano> &vecinos, v
 
 
 // Metaheurística tabú cuya memoria guarda las últimas soluciones exploradas. 
-Hamiltoniano heuristicaTabuSolucionesExploradas(Grafo g, Hamiltoniano solucionInicial(Grafo), bool criterioDeParada(int, int), int tamanioMemoria, vector<Hamiltoniano> obtenerSubVecindad(Hamiltoniano, Grafo) ) {
+Hamiltoniano heuristicaTabuSolucionesExploradas(Grafo g, Hamiltoniano solucionInicial(Grafo), string criterioDeParada,int threshold, int tamanioMemoria, vector<Hamiltoniano> obtenerSubVecindad(Hamiltoniano, Grafo) ) {
 	Hamiltoniano ciclo = solucionInicial(g);
 	Hamiltoniano mejor = ciclo;
 	vector<Hamiltoniano> memoria(tamanioMemoria,vector<int>{});
 	int indiceMasViejoDeLaMemoria = 0;
 	int cantIteracionesSinMejora = 0;
 	int cantIteraciones = 0;
-	while (criterioDeParada(cantIteraciones, cantIteracionesSinMejora)) {
-        // cout << "Ciclo " << cantIteraciones << ": " << "Llegé a 0" << endl;
+	int* criterio;
+	if (criterioDeParada == "cantIteracionesSinMejora") {
+		criterio = &cantIteracionesSinMejora;
+	} else {
+		criterio = &cantIteraciones;
+	}
+	while (*criterio < threshold) {
 		vector<Hamiltoniano> vecinos = obtenerSubVecindad(ciclo, g);
-        // cout << "Ciclo " << cantIteraciones << ": " << "Llegé a 1" << endl;
 		ciclo = obtenerMejorConMemoriaDeSoluciones(vecinos, memoria, g);
-        // cout << "Ciclo " << cantIteraciones << ": " << "Llegé a 2" << endl;
 		memoria[indiceMasViejoDeLaMemoria] = ciclo;
 		indiceMasViejoDeLaMemoria = (indiceMasViejoDeLaMemoria + 1) % tamanioMemoria;
-        // cout << "Ciclo " << cantIteraciones << ": " << "Llegé a 3" << endl;
 		if(costo(ciclo, g) < costo(mejor, g)) {
 			mejor = ciclo;
 		} else {
