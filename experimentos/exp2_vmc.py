@@ -15,7 +15,7 @@ Ns = list(range(50, 501, 50)) #N del grafo
 ts = []
 
 for N in Ns:
-	grafo = grafoRandomUniforme(N, (1,20)) #aristas de peso 1 a 300
+	grafo = grafoRandomUniforme(N, (1,20)) #aristas de peso 1 a 20
 	
 	out = tprun(opts, grafo)
 	if not out.verificar(grafo):

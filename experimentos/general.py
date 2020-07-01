@@ -48,7 +48,7 @@ class grafo: #Define un digrafo de N vertices con nombres 0...N-1
 		for i in range(self.N):
 			for j in range(i+1, self.N):
 				peso = self.aristas[(i,j)]
-				out += "%i %i %i\n"%(i, j, peso) #los +1 son para que quede 1-indexado
+				out += "%i %i %i\n"%(i, j, peso)
 			
 		return out
 	
