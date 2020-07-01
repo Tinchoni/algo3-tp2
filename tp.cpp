@@ -48,7 +48,8 @@ int main(int argc, const char** argv) {
             solInicial = heuristicaDeInsercion; 
         }  else if (algoInicial == "VecinoMasCercano")  {
             solInicial = [](Grafo g){return heuristicaVecinoMasCercano(g,0);};
-        }
+        } else if (algoInicial == "Hardcoded") {
+            solInicial = solucionHardcoded;}
 
         // Qué criterio de parada uso? Default: cantIteraciones -- Posibles {cantIteraciones,cantIteracionesSinMejora}
         string argCriterioParada = parser.retrieve<string>("criterioParada");

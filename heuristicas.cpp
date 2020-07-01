@@ -203,6 +203,14 @@ Hamiltoniano obtenerMejorConMemoriaDeSoluciones(vector<Hamiltoniano> &vecinos, v
 }
 
 
+Hamiltoniano solucionHardcoded(Grafo g) {
+	Hamiltoniano res;
+	for(int i = 0;i<g.size();i++) {
+		res.push_back(i);
+	}
+	return res;
+}
+
 // Metaheurística tabú cuya memoria guarda las últimas soluciones exploradas. 
 Hamiltoniano heuristicaTabuSolucionesExploradas(Grafo g, Hamiltoniano solucionInicial(Grafo), string criterioDeParada,int threshold, int tamanioMemoria, vector<Hamiltoniano> obtenerSubVecindad(Hamiltoniano, Grafo) ) {
 	Hamiltoniano ciclo = solucionInicial(g);
