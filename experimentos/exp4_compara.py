@@ -10,15 +10,15 @@ from general import *
 
 opt_agm = "--algoritmo AGM"
 opt_vmc = "--algoritmo VecinoMasCercano"
-opt_tabu = "--algoritmo Tabu --solInicial Insercion --itParada 30 --tamanioMemoria 20"
+opt_tabu = "--algoritmo Tabu --solInicial Insercion --itParada 1000 --tamanioMemoria 30"
 
-iteraciones = 5
+iteraciones = 1
 c_tabu = []
 c_vmc  = []
 c_agm  = []
 
 for _ in range(iteraciones):
-	grafo = grafoRandomUniforme(150, (1,50)) #genera grafo random de 200 vertices
+	grafo = grafoRandomUniforme(150, (1,50)) #genera grafo random de 150 vertices
 	
 	out_tabu = tprun(opt_tabu, grafo)
 	out_vmc = tprun(opt_vmc, grafo)

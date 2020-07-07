@@ -35,7 +35,9 @@ class grafo: #Define un digrafo de N vertices con nombres 0...N-1
 			self.aristas[(i,j)] = peso
 			self.aristas[(j,i)] = peso
 	
-	
+	def costo_medio(self):
+		return np.mean( list(self.aristas.values()) )
+		
 	def costo(self, camino):
 		out = 0
 		for i in range(len(camino)-1):
@@ -75,6 +77,21 @@ def cargarGrafo(filename):
 		
 		
 
+def grafoRandomDesconectado(Nvertices, alpha=0.5):
+	Naristas = Nvertices*(Nvertices-1)//2
+	
+	#definir las aristas
+	aristas = dict()
+	for i in range(Nvertices-1):
+		for j in range(i+1, Nvertices):
+			if random.random() > alpha: #alpha grande significa más desconectado
+				aristas[(i,j)] = random.randint(1, 50)
+			else:
+				aristas[(i,j)] = random.randint(10000, 50000)
+	
+	return grafo(Nvertices, aristas)
+
+
 def grafoRandomUniforme(Nvertices, limite_pesos=(1,20)):
 	Naristas = Nvertices*(Nvertices-1)//2
 	
@@ -85,7 +102,32 @@ def grafoRandomUniforme(Nvertices, limite_pesos=(1,20)):
 			aristas[(i,j)] = random.randint(limite_pesos[0], limite_pesos[1])
 	
 	return grafo(Nvertices, aristas)
-			
+
+
+
+def grafoRandomEuclideo(Nvertices, distancia_maxima=40):
+	if (distancia_maxima//2+1)**2 < Nvertices:
+		raise Exception("Necesito distancia")
+	
+	#generar lista con las coordenadas posibles
+	coordenadas = [(x, y) for x in range(distancia_maxima//2+1) for y in range(distancia_maxima//2+1)]
+	
+	#elijo los puntos
+	random.shuffle(coordenadas)
+	puntos = coordenadas[:Nvertices]
+	
+	#el peso va a ser la vieja y querida norma 1
+	def norma1(a, b): return abs(a[0]-b[0]) + abs(a[1]-b[1])
+	
+	#defino el grafo
+	aristas = dict()
+	for i in range(Nvertices-1):
+		for j in range(i+1, Nvertices):
+			aristas[(i,j)] = norma1( puntos[i], puntos[j] )
+	
+	return grafo(Nvertices, aristas)
+
+
 
 class tpout:
 	def __init__(self, salida, tiempo):
