@@ -9,11 +9,8 @@
 #include <random>
 #include <chrono>
 
-
 using namespace std;
 
 #define INFINITO 10e6
-
-vector<string> split (string toSplit);
 
 #endif

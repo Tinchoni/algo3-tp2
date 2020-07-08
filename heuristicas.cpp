@@ -1,6 +1,7 @@
 #include "heuristicas.h"
 #include <random>
 #include<algorithm> 
+
 int obtenerElVecinoNoVisitadoMasCercano (int actual, Grafo g, vector<bool> visitados) {
     int n = g.size();
     int elMasCercano = -1;
@@ -16,6 +17,7 @@ int obtenerElVecinoNoVisitadoMasCercano (int actual, Grafo g, vector<bool> visit
 
     return elMasCercano;
 }
+
 
 // Heurística constructiva golosa con la idea de agregar en cada paso al vecino más cercano al último nodo agregado.
 Hamiltoniano heuristicaVecinoMasCercano(Grafo g, int nodoInicial) {
@@ -39,7 +41,9 @@ Hamiltoniano heuristicaVecinoMasCercano(Grafo g, int nodoInicial) {
     return circuitoHamiltoniano;
 }
 
+
 /*************************************************************************************************************/
+
 
 // Heurística constructiva golosa con la idea de calcular el AGM, recorrerlo mediante DFS y conectar los nodos según el orden dado por DFS.
 Hamiltoniano heuristicaAGM(Grafo g) {
@@ -49,6 +53,7 @@ Hamiltoniano heuristicaAGM(Grafo g) {
 
     return ordDFS;
 }
+
 
 /*************************************************************************************************************/
 
@@ -72,6 +77,7 @@ int elegirNodo(Grafo &g, vector<bool> &visitados, vector<int> &insertados) {
 	return elegido;
 }
 
+
 void insertarElementoEnPosicion(vector<int> &v, int valor, int indice) {
 	v.push_back(valor);
 
@@ -83,6 +89,7 @@ void insertarElementoEnPosicion(vector<int> &v, int valor, int indice) {
 	}
 }
 
+
 void insertarNodo(int elegido, Grafo &g, vector<bool> &visitados, vector<int> &insertados) {
 	// Como criterio de inserción tomaremos dos nodos consecutivos i e i+1 tales que minimicen el costo de insertar al nuevo nodo entre i e i+1. 
 	int costoResultante = INFINITO;
@@ -90,7 +97,6 @@ void insertarNodo(int elegido, Grafo &g, vector<bool> &visitados, vector<int> &i
 	int izquierda;
 	int derecha;
 
-	//TODO: meter en el informe que debe valer la desigualdad triangular.
 	for (int i = 0; i < insertados.size() - 1; i++) {
 		// Si tengo (v1) -- (v2) -- (v3) y estoy parado en (v2) necesito saber hacia dónde avanzar, sino toy yendo para atras y me pierdo para siempre (?).
 		costoActual = g[insertados[i]][elegido] + g[elegido][insertados[i+1]] - g[insertados[i]][insertados[i+1]];
@@ -113,13 +119,13 @@ void insertarNodo(int elegido, Grafo &g, vector<bool> &visitados, vector<int> &i
 	insertarElementoEnPosicion(insertados, elegido, derecha);
 }
 
+
 // Heurística constructiva golosa con la idea de formar un ciclo inicial y en cada paso agregar un nodo al ciclo que minimice el costo.
 Hamiltoniano heuristicaDeInsercion(Grafo g) {
 	int n = g.size();
 	Grafo circuitoHamiltoniano(n, vector<Peso>(n, -1));
 	vector<bool> visitados(n, false);
 	Hamiltoniano insertados; // vector en el que el nodo i es adyacente a los nodos i-1 e i+1. Capaz ya podemos volar el vector visitados pero por ahora lo dejo.
-
 
 	//elegimos 3 nodos cualesquiera para formar un ciclo inicial. En particular, tomamos los primeros 3 nodos:
 	visitados[0] = true;
@@ -140,20 +146,14 @@ Hamiltoniano heuristicaDeInsercion(Grafo g) {
 
 
 /*************************************************************************************************************/
-vector<int> darVuelta(vector<int> v) {
-	vector<int> dadoVuelta;
-	for (int i = v.size() - 1; i >= 0; i--){
-		dadoVuelta.push_back(v[i]);
-	}
-	return dadoVuelta;
-}
+
 
 Hamiltoniano dosOpt(Hamiltoniano ciclo, int i, int j) {
-
 	std::reverse(ciclo.begin() + i, ciclo.begin() + j + 1);
+
     return ciclo;
-    
 }
+
 
 vector<Hamiltoniano> obtenerSubVecindad(Hamiltoniano solucionParcial, Grafo g) {
     // cout << "SolParcialLen :" << solucionParcial.size() << endl;
@@ -162,33 +162,34 @@ vector<Hamiltoniano> obtenerSubVecindad(Hamiltoniano solucionParcial, Grafo g) {
 	float probabilidadDeDescarte = 0.8;
 	default_random_engine generator (42);
 	bernoulli_distribution distribution(probabilidadDeDescarte);
+
     // cout << "SubVecindad - Ciclo -1 : " << "Llegé a 0" << endl;
-	for (int i = 0; i < n; i++){
-		for (int j = i+1; j < n; j++)
-		{
+	for (int i = 0; i < n; i++) {
+		for (int j = i+1; j < n; j++) {
            // cout << "SubVecindad - Ciclo " << i << "-" << j << ": " << "Llegé a 1" << endl;
 			if(!distribution(generator)) {
                // cout << "SubVecindad - Ciclo " << i << "-" << j << ": " << "Llegé a 2" << endl;
                 Hamiltoniano sol2opt = dosOpt(solucionParcial, i, j);
-				
 				vecindad.push_back(sol2opt);
 			}
 		}
 	}
+
 	return vecindad;
 }
 
 
 Hamiltoniano obtenerMejor(vector<Hamiltoniano> soluciones, Grafo g) {
 	int elMejor = 0;
+
 	for (int i = 1; i < soluciones.size(); i++){	
-		if(costo(soluciones[i], g) < costo(soluciones[elMejor], g)){
+		if(costo(soluciones[i], g) < costo(soluciones[elMejor], g)) {
 			elMejor = i;
 		}
 	}
+
 	return soluciones[elMejor];
 }
-
 
 
 Hamiltoniano obtenerMejorConMemoriaDeSoluciones(vector<Hamiltoniano> &vecinos, vector<Hamiltoniano> &memoria, Grafo g) {
@@ -208,14 +209,17 @@ Hamiltoniano obtenerMejorConMemoriaDeSoluciones(vector<Hamiltoniano> &vecinos, v
 	return obtenerMejor(vecinosFiltrados, g);
 }
 
-
+// esta la puedo volar chami?
 Hamiltoniano solucionHardcoded(Grafo g) {
 	Hamiltoniano res;
+
 	for(int i = 0;i<g.size();i++) {
 		res.push_back(i);
 	}
+
 	return res;
 }
+
 
 // Metaheurística tabú cuya memoria guarda las últimas soluciones exploradas. 
 Hamiltoniano heuristicaTabuSolucionesExploradas(Grafo g, Hamiltoniano solucionInicial(Grafo), string criterioDeParada,int threshold, int tamanioMemoria, vector<Hamiltoniano> obtenerSubVecindad(Hamiltoniano, Grafo) ) {
@@ -226,11 +230,13 @@ Hamiltoniano heuristicaTabuSolucionesExploradas(Grafo g, Hamiltoniano solucionIn
 	int cantIteracionesSinMejora = 0;
 	int cantIteraciones = 0;
 	int* criterio;
+
 	if (criterioDeParada == "cantIteracionesSinMejora") {
 		criterio = &cantIteracionesSinMejora;
 	} else {
 		criterio = &cantIteraciones;
 	}
+
 	while (*criterio < threshold) {
 		vector<Hamiltoniano> vecinos = obtenerSubVecindad(ciclo, g);
 		ciclo = obtenerMejorConMemoriaDeSoluciones(vecinos, memoria, g);
@@ -247,17 +253,21 @@ Hamiltoniano heuristicaTabuSolucionesExploradas(Grafo g, Hamiltoniano solucionIn
 	return mejor;
 }
 
+
 /*************************************************************************************************************/
+
 
 pair<Hamiltoniano, pair<int,int>> obtenerMejorConInfo(vector<pair<Hamiltoniano, pair<int,int>>> soluciones, Grafo g) {
 	int elMejor = 0;
-	for (int i = 1; i < soluciones.size(); i++){	
-		if(costo(soluciones[i].first, g) < costo(soluciones[elMejor].first, g)){
+
+	for (int i = 1; i < soluciones.size(); i++) {	
+		if(costo(soluciones[i].first, g) < costo(soluciones[elMejor].first, g)) {
 			elMejor = i;
 		}
 	}
 	return soluciones[elMejor];
 }
+
 
 vector<pair<Hamiltoniano, pair<int,int>>> obtenerSubVecindadConInfoIntercambios(Hamiltoniano solucionParcial, Grafo g) {
 	vector<pair<Hamiltoniano, pair<int,int>>> vecindad;
@@ -265,24 +275,27 @@ vector<pair<Hamiltoniano, pair<int,int>>> obtenerSubVecindadConInfoIntercambios(
 	float probabilidadDeDescarte = 0.8;
 	default_random_engine generator (42);
 	bernoulli_distribution distribution(probabilidadDeDescarte);
+
     // cout << "SubVecindad - Ciclo -1 : " << "Llegé a 0" << endl;
-	for (int i = 0; i < n; i++){
-		for (int j = i+1; j < n; j++)
-		{
+	for (int i = 0; i < n; i++) {
+		for (int j = i+1; j < n; j++) {
            // cout << "SubVecindad - Ciclo " << i << "-" << j << ": " << "Llegé a 1" << endl;
 			if(!distribution(generator)) {
                // cout << "SubVecindad - Ciclo " << i << "-" << j << ": " << "Llegé a 2" << endl;
-                Hamiltoniano sol2opt = dosOpt(solucionParcial, i, j);
+            	Hamiltoniano sol2opt = dosOpt(solucionParcial, i, j);
 				pair<int,int> intercambio (i,j);
-				vecindad.push_back(pair<Hamiltoniano, pair<int,int>>(sol2opt, intercambio);
+				vecindad.push_back(pair<Hamiltoniano, pair<int,int>>(sol2opt, intercambio));
 			}
 		}
 	}
+
 	return vecindad;
 }
 
+
 pair<Hamiltoniano, pair<int,int>> obtenerMejorConMemoriaDeAristas(vector<pair<Hamiltoniano, pair<int,int>>> &vecinos , vector<pair<int,int>> &memoria, Grafo g) {
-	vector<pair<Hamiltoniano, pair<int,int>>> vecinosFiltrados;	
+	vector<pair<Hamiltoniano, pair<int,int>>> vecinosFiltrados;
+
 	//saco de los posibles vecinos, aquellos que esten en memoria
 	for (int j = 0; j < vecinos.size(); j++){
         bool agrego = true;
@@ -299,23 +312,23 @@ pair<Hamiltoniano, pair<int,int>> obtenerMejorConMemoriaDeAristas(vector<pair<Ha
 }
 
 
-
-
 // Metaheurística tabú cuya memoria guarda los últimos swaps entre pares de aristas. 
-Hamiltoniano heuristicaTabuAristasIntercambiadas(Grafo g, Hamiltoniano solucionInicial(Grafo), string criterioDeParada,int threshold, int tamanioMemoria ) {
+Hamiltoniano heuristicaTabuAristasIntercambiadas(Grafo g, Hamiltoniano solucionInicial(Grafo), string criterioDeParada,int threshold, int tamanioMemoria) {
 	pair<Hamiltoniano, pair<int,int>> ciclo = make_pair(solucionInicial(g),make_pair(-1,-1));
 	pair<Hamiltoniano, pair<int,int>> mejor = ciclo;
 	vector<pair<int, int>> memoria(tamanioMemoria, pair<int,int>(-1,-1));
 	int cantIteracionesSinMejora = 0;
 	int cantIteraciones = 0;
 	int* criterio;
+
 	if (criterioDeParada == "cantIteracionesSinMejora") {
 		criterio = &cantIteracionesSinMejora;
 	} else {
 		criterio = &cantIteraciones;
 	}
+
 	while (*criterio < threshold) {
-		vector<pair<Hamiltoniano, pair<int,int>>> vecinos = obtenerSubVecindadConInfoIntercambios(ciclo, g);
+		vector<pair<Hamiltoniano, pair<int,int>>> vecinos = obtenerSubVecindadConInfoIntercambios(ciclo.first, g);
 		ciclo = obtenerMejorConMemoriaDeAristas(vecinos, memoria, g);
 		if(costo(ciclo.first, g) < costo(mejor.first, g)) {
 			mejor = ciclo;

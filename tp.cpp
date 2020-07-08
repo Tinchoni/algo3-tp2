@@ -67,7 +67,7 @@ int main(int argc, const char** argv) {
         int tamanioMemoria = stoi(parser.retrieve<string>("tamanioMemoria"));
         //para tabu vuelvo a tomar el tiempo acá para no tomar en cuenta el tiempo que me lleva parsear todos los paramettros
         start = chrono::steady_clock::now();
-        
+
         res = heuristicaTabuSolucionesExploradas(
                 g, 
                 solInicial, 
