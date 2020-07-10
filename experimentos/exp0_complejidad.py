@@ -6,8 +6,6 @@ Created on Thu Jul  2 19:56:38 2020
 @author: pablo
 """
 
-from matplotlib import pyplot as plt
-from scipy.optimize import curve_fit
 from general import *
 
 
@@ -18,7 +16,7 @@ o_vmc = []
 i_ins = "--algoritmo Insercion"
 o_ins = []
 
-Ns = list(range(20, 721, 100)) #N del grafo
+Ns = list(range(20, 1021, 50)) #N del grafo
 ts = []
 
 for N in Ns:
@@ -31,6 +29,8 @@ for N in Ns:
 			raise Exception("Ups!")
 		
 #%%
+#plt.rcParams['legend.title_fontsize'] = 'xx-small'
+plt.figure(figsize= (8,8))
 t_agm = np.array( [x.tiempo for x in o_agm] )
 t_vmc = np.array( [x.tiempo for x in o_vmc] )
 t_ins = np.array( [x.tiempo for x in o_ins] )
@@ -56,9 +56,9 @@ plt.legend()
 plt.savefig('complejidad.pdf')
 
 plt.figure()
-c_agm = np.array( [x.costo for x in o_agm] )/np.array(Ns)/25
-c_vmc = np.array( [x.costo for x in o_vmc] )/np.array(Ns)/25
-c_ins = np.array( [x.costo for x in o_ins] )/np.array(Ns)/25
+c_agm = np.array( [x.costo for x in o_agm] )/np.array(Ns)
+c_vmc = np.array( [x.costo for x in o_vmc] )/np.array(Ns)
+c_ins = np.array( [x.costo for x in o_ins] )/np.array(Ns)
 
 plt.plot(Ns, c_agm, 'oC0', label='AGM')
 plt.plot(Ns, c_vmc, 'oC1', label='Vecino más cercano')

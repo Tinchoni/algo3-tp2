@@ -23,10 +23,10 @@ o_vmc = []
 i_ins = "--algoritmo Tabu --solInicial Insercion --itParada %i --tamanioMemoria 20"
 o_ins = []
 
-iteraciones = list(range(1, 100, 1))
+iteraciones = list(range(1, 502, 100))
 
-entrada = i_vmc
-grafo = grafoRandomUniforme(50, (1, 50**3))
+entrada = i_vmc;"--algoritmo Tabu --solInicial harcoded --itParada %i --tamanioMemoria 20"
+grafo = grafoRandomUniforme(50, (1, 50))
 
 for I in iteraciones:
 	
@@ -48,7 +48,7 @@ plt.savefig('iteraciones_vmc.pdf')
 
 
 plt.figure()
-c_vmc = np.array( [x.costo for x in o_vmc] )/50/grafo.costo_medio()
+c_vmc = np.array( [x.costo for x in o_vmc] )
 
 plt.plot(iteraciones, c_vmc, 'oC1', label='Vecino más cercano')
 

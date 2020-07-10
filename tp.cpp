@@ -9,11 +9,11 @@
 
 int main(int argc, const char** argv) {
     // freopen("completo100.txt", "r", stdin);
-    
+
     //ArgParser
     ArgumentParser parser;
 
-    
+
     parser.addArgument("-a","--algoritmo",1,false);
 
 
@@ -33,7 +33,7 @@ int main(int argc, const char** argv) {
     string algo = parser.retrieve<string>("algoritmo");
 
     auto start = chrono::steady_clock::now();
-    
+
     if (algo == "VecinoMasCercano") {
         res = heuristicaVecinoMasCercano(g,0);
     } else if (algo == "Insercion") {
@@ -45,9 +45,9 @@ int main(int argc, const char** argv) {
         // Que algoritmo uso para la solucion inicial? Default: AGM
         string algoInicial = parser.retrieve<string>("solInicial");
         auto solInicial = heuristicaAGM;
-        
+
         if (algoInicial == "Insercion") {
-            solInicial = heuristicaDeInsercion; 
+            solInicial = heuristicaDeInsercion;
         }  else if (algoInicial == "VecinoMasCercano")  {
             solInicial = [](Grafo &g){return heuristicaVecinoMasCercano(g,0);};
         } else if (algoInicial == "Hardcoded") {
@@ -70,7 +70,7 @@ int main(int argc, const char** argv) {
         }
 
         string arMemoria = parser.retrieve<string>("tamanioMemoria");
-        
+
         int tamanioMemoria = 50;
         if(arMemoria != "") {
             tamanioMemoria = stoi(parser.retrieve<string>("tamanioMemoria"));
@@ -83,15 +83,15 @@ int main(int argc, const char** argv) {
 
         if(tipoMemoria == "soluciones") {
             res = heuristicaTabuSolucionesExploradas(
-                    g, 
-                    solInicial, 
+                    g,
+                    solInicial,
                     argCriterioParada,
                     itParada,
                     tamanioMemoria);
         } else if (tipoMemoria == "aristas") {
             res = heuristicaTabuAristasIntercambiadas(
-                    g, 
-                    solInicial, 
+                    g,
+                    solInicial,
                     argCriterioParada,
                     itParada,
                     tamanioMemoria );
@@ -100,7 +100,7 @@ int main(int argc, const char** argv) {
         }
     }
 
-    
+
     auto end = chrono::steady_clock::now();
 	double total_time = chrono::duration<double, milli>(end - start).count();
 
@@ -112,13 +112,13 @@ int main(int argc, const char** argv) {
 }
 
 /*
-TEST_CASE("Instancia ejemplo", "[Goloso - Vecino mas cercano]") {    
+TEST_CASE("Instancia ejemplo", "[Goloso - Vecino mas cercano]") {
     freopen( "entradaEjemplo", "r", stdin );
-    
+
     Grafo g = leerGrafo();
-    
+
     Grafo elCircHamiltoniano = heuristicaVecinoMasCercano(g, 0);
-    
+
     Grafo deberiaValer(g.size(), vector<Peso>(g.size(), -1));
     conectar(deberiaValer, 0, 1, 10);
     conectar(deberiaValer, 1, 3, 25);
@@ -129,11 +129,11 @@ TEST_CASE("Instancia ejemplo", "[Goloso - Vecino mas cercano]") {
         deberiaValer[i][i] = 0;
     }
 
-    
+
     REQUIRE(esIgual(deberiaValer, elCircHamiltoniano));
 
     elCircHamiltoniano = heuristicaVecinoMasCercano(g, 1);
-    
+
     deberiaValer = Grafo(g.size(), vector<Peso>(g.size(), -1));
     conectar(deberiaValer, 1, 0, 10);
     conectar(deberiaValer, 0, 2, 15);
@@ -147,7 +147,7 @@ TEST_CASE("Instancia ejemplo", "[Goloso - Vecino mas cercano]") {
     REQUIRE(esIgual(deberiaValer, elCircHamiltoniano));
 
     elCircHamiltoniano = heuristicaVecinoMasCercano(g, 2);
-    
+
     deberiaValer = Grafo(g.size(), vector<Peso>(g.size(), -1));
     conectar(deberiaValer, 2, 0, 15);
     conectar(deberiaValer, 0, 1, 10);
@@ -161,7 +161,7 @@ TEST_CASE("Instancia ejemplo", "[Goloso - Vecino mas cercano]") {
     REQUIRE(esIgual(deberiaValer, elCircHamiltoniano));
 
     elCircHamiltoniano = heuristicaVecinoMasCercano(g, 3);
-    
+
     deberiaValer = Grafo(g.size(), vector<Peso>(g.size(), -1));
     conectar(deberiaValer, 3, 0, 20);
     conectar(deberiaValer, 0, 1, 10);

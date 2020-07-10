@@ -8,6 +8,27 @@ Created on Tue Jun 30 13:29:28 2020
 import subprocess as sp
 import numpy as np
 import random
+from scipy.optimize import curve_fit
+
+from matplotlib import pyplot as plt
+
+# configuracion de plots
+from matplotlib import rc, rcParams, axes
+from matplotlib import axes as mplibAxes
+
+rc('text', usetex=True)
+rcParams['text.latex.preamble'] = [r'\boldmath']
+#rc('font', family='serif', size=20, weight='bold')
+rc('font', family='serif', size=14)
+rcParams['axes.axisbelow'] = True
+rcParams['lines.linewidth'] = 2
+rc('axes', labelsize=18)
+rc('xtick', labelsize=18)
+rc('ytick', labelsize=18)
+rcParams['figure.figsize'] = (8.0, 8.0)
+rcParams['figure.dpi'] = 120
+
+
 
 class grafo: #Define un digrafo de N vertices con nombres 0...N-1	
 	def __init__(self, N, aristas):
@@ -169,3 +190,29 @@ def tprun(string_opciones, grafo):
 	
 	return tpout(proc.stdout, proc.stderr)
 
+
+global memo
+def dado(X, N, F):
+	global memo
+	memo = [[-1 for _ in range(N+1)] for _ in range(X+1)]
+	
+	#return dado_comp(X, N, F)
+	return sum( [dado_comp(i, N, F) for i in range(X+1)])
+	
+def dado_comp(X, N, F):
+	if N*F<X or X<N: return 0
+	if N == 1: return 1
+	
+	if memo[X][N] == -1:
+		memo[X][N] = 0
+		for i in range(1, F+1):
+			memo[X][N] += dado_comp(X-i, N-1, F)
+	
+	return memo[X][N]
+
+def dado2(m, j, F):
+	if m<j: return 0.
+	if m>j*F: return 0.
+	if j == 1: return 1./F
+	
+	return 1./F*sum( [dado2(m-i, j-1, F) for i in range(1, F)] )
