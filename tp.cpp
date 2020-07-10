@@ -8,7 +8,7 @@
 //#include "catch.hpp"
 
 int main(int argc, const char** argv) {
-    // freopen("completo100.txt", "r", stdin);
+    freopen("entradaEjemplo", "r", stdin);
     
     //ArgParser
     ArgumentParser parser;

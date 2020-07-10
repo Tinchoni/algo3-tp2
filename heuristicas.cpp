@@ -176,15 +176,21 @@ vector<Hamiltoniano> obtenerSubVecindad(Hamiltoniano solucionParcial, Grafo &g) 
 
 
 Hamiltoniano obtenerMejor(vector<Hamiltoniano> &soluciones, Grafo &g) {
-	int elMejor = 0;
+	Hamiltoniano res;
+	if(soluciones.size() > 0) {
+		int elMejor = 0;
 
-	for (int i = 1; i < soluciones.size(); i++){	
-		if(costo(soluciones[i], g) < costo(soluciones[elMejor], g)) {
-			elMejor = i;
+		for (int i = 1; i < soluciones.size(); i++){	
+			if(costo(soluciones[i], g) < costo(soluciones[elMejor], g)) {
+				elMejor = i;
+			}
 		}
+		res = soluciones[elMejor];
+	} else {
+		res = Hamiltoniano(0, 0);
 	}
 
-	return soluciones[elMejor];
+	return res;
 }
 
 
@@ -235,9 +241,12 @@ Hamiltoniano heuristicaTabuSolucionesExploradas(Grafo &g, Hamiltoniano solucionI
 
 	while ( *criterio < umbral ){
 		vector<Hamiltoniano> vecinos = obtenerSubVecindad(ciclo, g);
-		ciclo = obtenerMejorConMemoriaDeSoluciones(vecinos, memoria, g);
-		memoria[indiceMasViejoDeLaMemoria] = ciclo;
-		indiceMasViejoDeLaMemoria = (indiceMasViejoDeLaMemoria + 1) % tamanioMemoria;
+		Hamiltoniano nuevo = obtenerMejorConMemoriaDeSoluciones(vecinos, memoria, g);
+		if(nuevo.size() > 0) {
+			ciclo = nuevo;
+			memoria[indiceMasViejoDeLaMemoria] = ciclo;
+			indiceMasViejoDeLaMemoria = (indiceMasViejoDeLaMemoria + 1) % tamanioMemoria;
+		}
 		if(costo(ciclo, g) < costo(mejor, g)) {
 			mejor = ciclo;
 		} else {
@@ -332,9 +341,9 @@ Hamiltoniano heuristicaTabuAristasIntercambiadas(Grafo &g, Hamiltoniano solucion
 		pair<Hamiltoniano, pair<int,int>> nuevo = obtenerMejorConMemoriaDeAristas(vecinos, memoria, g);
 		if(nuevo.second.first != -1) {
 			ciclo = nuevo;
+			memoria[indiceMasViejoDeLaMemoria] = ciclo.second;
+			indiceMasViejoDeLaMemoria = (indiceMasViejoDeLaMemoria + 1) % tamanioMemoria;
 		}
-		memoria[indiceMasViejoDeLaMemoria] = ciclo.second;
-		indiceMasViejoDeLaMemoria = (indiceMasViejoDeLaMemoria + 1) % tamanioMemoria;
 		if(costo(ciclo.first, g) < costo(mejor.first, g)) {
 			mejor = ciclo;
 		} else {
