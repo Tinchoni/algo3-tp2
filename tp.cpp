@@ -8,7 +8,7 @@
 //#include "catch.hpp"
 
 int main(int argc, const char** argv) {
-    //freopen("completo100.txt", "r", stdin);
+    // freopen("completo100.txt", "r", stdin);
     
     //ArgParser
     ArgumentParser parser;
@@ -20,6 +20,7 @@ int main(int argc, const char** argv) {
     //Parametros para TABU Search
     parser.addArgument("-s","--solInicial",1);
     parser.addArgument("-m","--tamanioMemoria",1);
+    parser.addArgument("-s","--tipoMemoria",1);
     parser.addArgument("-p","--criterioParada",1);
     parser.addArgument("-i","--itParada",1);
     //Valido Parametros
@@ -32,6 +33,7 @@ int main(int argc, const char** argv) {
     string algo = parser.retrieve<string>("algoritmo");
 
     auto start = chrono::steady_clock::now();
+    
     if (algo == "VecinoMasCercano") {
         res = heuristicaVecinoMasCercano(g,0);
     } else if (algo == "Insercion") {
@@ -47,9 +49,13 @@ int main(int argc, const char** argv) {
         if (algoInicial == "Insercion") {
             solInicial = heuristicaDeInsercion; 
         }  else if (algoInicial == "VecinoMasCercano")  {
-            solInicial = [](Grafo g){return heuristicaVecinoMasCercano(g,0);};
+            solInicial = [](Grafo &g){return heuristicaVecinoMasCercano(g,0);};
         } else if (algoInicial == "Hardcoded") {
-            solInicial = solucionHardcoded;}
+            solInicial = solucionHardcoded;
+        } else if(algoInicial != "AGM") {
+            solInicial = NULL;
+            cerr << "Mala invocacion, la solInicial debe ser una de {Insercion, VecinoMasCercano, Hardcoded, AGM}" << endl;
+        }
 
         // Qué criterio de parada uso? Default: cantIteraciones -- Posibles {cantIteraciones,cantIteracionesSinMejora}
         string argCriterioParada = parser.retrieve<string>("criterioParada");
@@ -63,18 +69,35 @@ int main(int argc, const char** argv) {
             itParada = 500;
         }
 
+        string arMemoria = parser.retrieve<string>("tamanioMemoria");
+        
+        int tamanioMemoria = 50;
+        if(arMemoria != "") {
+            tamanioMemoria = stoi(parser.retrieve<string>("tamanioMemoria"));
+        }
 
-        int tamanioMemoria = stoi(parser.retrieve<string>("tamanioMemoria"));
+        string tipoMemoria = parser.retrieve<string>("tipoMemoria");
+
         //para tabu vuelvo a tomar el tiempo acá para no tomar en cuenta el tiempo que me lleva parsear todos los paramettros
         start = chrono::steady_clock::now();
 
-        res = heuristicaTabuSolucionesExploradas(
-                g, 
-                solInicial, 
-                argCriterioParada,
-                itParada,
-                tamanioMemoria,
-                obtenerSubVecindad );
+        if(tipoMemoria == "soluciones") {
+            res = heuristicaTabuSolucionesExploradas(
+                    g, 
+                    solInicial, 
+                    argCriterioParada,
+                    itParada,
+                    tamanioMemoria);
+        } else if (tipoMemoria == "aristas") {
+            res = heuristicaTabuAristasIntercambiadas(
+                    g, 
+                    solInicial, 
+                    argCriterioParada,
+                    itParada,
+                    tamanioMemoria );
+        } else {
+            cerr << "Mala invocacion, el tipoMemoria debe ser uno de {soluciones, aristas}" << endl;
+        }
     }
 
     

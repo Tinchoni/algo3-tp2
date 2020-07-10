@@ -2,7 +2,7 @@
 #include <random>
 #include<algorithm> 
 
-int obtenerElVecinoNoVisitadoMasCercano (int actual, Grafo g, vector<bool> visitados) {
+int obtenerElVecinoNoVisitadoMasCercano (int actual, Grafo &g, vector<bool> &visitados) {
     int n = g.size();
     int elMasCercano = -1;
 
@@ -20,7 +20,7 @@ int obtenerElVecinoNoVisitadoMasCercano (int actual, Grafo g, vector<bool> visit
 
 
 // Heurística constructiva golosa con la idea de agregar en cada paso al vecino más cercano al último nodo agregado.
-Hamiltoniano heuristicaVecinoMasCercano(Grafo g, int nodoInicial) {
+Hamiltoniano heuristicaVecinoMasCercano(Grafo &g, int nodoInicial) {
     int n = g.size();
     vector<bool> visitados(n, false);
     Hamiltoniano circuitoHamiltoniano;
@@ -46,7 +46,7 @@ Hamiltoniano heuristicaVecinoMasCercano(Grafo g, int nodoInicial) {
 
 
 // Heurística constructiva golosa con la idea de calcular el AGM, recorrerlo mediante DFS y conectar los nodos según el orden dado por DFS.
-Hamiltoniano heuristicaAGM(Grafo g) {
+Hamiltoniano heuristicaAGM(Grafo &g) {
     int n = g.size();
     Grafo t = AGM(g);
     Hamiltoniano ordDFS = DFS(t,0);
@@ -121,7 +121,7 @@ void insertarNodo(int elegido, Grafo &g, vector<bool> &visitados, vector<int> &i
 
 
 // Heurística constructiva golosa con la idea de formar un ciclo inicial y en cada paso agregar un nodo al ciclo que minimice el costo.
-Hamiltoniano heuristicaDeInsercion(Grafo g) {
+Hamiltoniano heuristicaDeInsercion(Grafo &g) {
 	int n = g.size();
 	Grafo circuitoHamiltoniano(n, vector<Peso>(n, -1));
 	vector<bool> visitados(n, false);
@@ -155,20 +155,16 @@ Hamiltoniano dosOpt(Hamiltoniano ciclo, int i, int j) {
 }
 
 
-vector<Hamiltoniano> obtenerSubVecindad(Hamiltoniano solucionParcial, Grafo g) {
-    // cout << "SolParcialLen :" << solucionParcial.size() << endl;
+vector<Hamiltoniano> obtenerSubVecindad(Hamiltoniano solucionParcial, Grafo &g) {
 	vector<Hamiltoniano> vecindad;
 	int n = g.size();
 	float probabilidadDeDescarte = 0.8;
 	default_random_engine generator (42);
 	bernoulli_distribution distribution(probabilidadDeDescarte);
 
-    // cout << "SubVecindad - Ciclo -1 : " << "Llegé a 0" << endl;
 	for (int i = 0; i < n; i++) {
 		for (int j = i+1; j < n; j++) {
-           // cout << "SubVecindad - Ciclo " << i << "-" << j << ": " << "Llegé a 1" << endl;
 			if(!distribution(generator)) {
-               // cout << "SubVecindad - Ciclo " << i << "-" << j << ": " << "Llegé a 2" << endl;
                 Hamiltoniano sol2opt = dosOpt(solucionParcial, i, j);
 				vecindad.push_back(sol2opt);
 			}
@@ -179,7 +175,7 @@ vector<Hamiltoniano> obtenerSubVecindad(Hamiltoniano solucionParcial, Grafo g) {
 }
 
 
-Hamiltoniano obtenerMejor(vector<Hamiltoniano> soluciones, Grafo g) {
+Hamiltoniano obtenerMejor(vector<Hamiltoniano> &soluciones, Grafo &g) {
 	int elMejor = 0;
 
 	for (int i = 1; i < soluciones.size(); i++){	
@@ -192,7 +188,7 @@ Hamiltoniano obtenerMejor(vector<Hamiltoniano> soluciones, Grafo g) {
 }
 
 
-Hamiltoniano obtenerMejorConMemoriaDeSoluciones(vector<Hamiltoniano> &vecinos, vector<Hamiltoniano> &memoria, Grafo g) {
+Hamiltoniano obtenerMejorConMemoriaDeSoluciones(vector<Hamiltoniano> &vecinos, vector<Hamiltoniano> &memoria, Grafo &g) {
 	vector<Hamiltoniano> vecinosFiltrados;	
 	//saco de los posibles vecinos, aquellos que esten en memoria
 	for (int j = 0; j < vecinos.size(); j++){
@@ -210,7 +206,7 @@ Hamiltoniano obtenerMejorConMemoriaDeSoluciones(vector<Hamiltoniano> &vecinos, v
 }
 
 // esta la puedo volar chami?
-Hamiltoniano solucionHardcoded(Grafo g) {
+Hamiltoniano solucionHardcoded(Grafo &g) {
 	Hamiltoniano res;
 
 	for(int i = 0;i<g.size();i++) {
@@ -222,7 +218,7 @@ Hamiltoniano solucionHardcoded(Grafo g) {
 
 
 // Metaheurística tabú cuya memoria guarda las últimas soluciones exploradas. 
-Hamiltoniano heuristicaTabuSolucionesExploradas(Grafo g, Hamiltoniano solucionInicial(Grafo), string criterioDeParada,int threshold, int tamanioMemoria, vector<Hamiltoniano> obtenerSubVecindad(Hamiltoniano, Grafo) ) {
+Hamiltoniano heuristicaTabuSolucionesExploradas(Grafo &g, Hamiltoniano solucionInicial(Grafo&), string criterioDeParada,int umbral, int tamanioMemoria ) {
 	Hamiltoniano ciclo = solucionInicial(g);
 	Hamiltoniano mejor = ciclo;
 	vector<Hamiltoniano> memoria(tamanioMemoria,vector<int>{});
@@ -237,7 +233,7 @@ Hamiltoniano heuristicaTabuSolucionesExploradas(Grafo g, Hamiltoniano solucionIn
 		criterio = &cantIteraciones;
 	}
 
-	while (*criterio < threshold) {
+	while ( *criterio < umbral ){
 		vector<Hamiltoniano> vecinos = obtenerSubVecindad(ciclo, g);
 		ciclo = obtenerMejorConMemoriaDeSoluciones(vecinos, memoria, g);
 		memoria[indiceMasViejoDeLaMemoria] = ciclo;
@@ -257,31 +253,34 @@ Hamiltoniano heuristicaTabuSolucionesExploradas(Grafo g, Hamiltoniano solucionIn
 /*************************************************************************************************************/
 
 
-pair<Hamiltoniano, pair<int,int>> obtenerMejorConInfo(vector<pair<Hamiltoniano, pair<int,int>>> soluciones, Grafo g) {
-	int elMejor = 0;
+pair<Hamiltoniano, pair<int,int>> obtenerMejorConInfo(vector<pair<Hamiltoniano, pair<int,int>>> &soluciones, Grafo &g) {
+	pair<Hamiltoniano, pair<int,int>> res;
+	if(soluciones.size() > 0) {
+		int elMejor = 0;
 
-	for (int i = 1; i < soluciones.size(); i++) {	
-		if(costo(soluciones[i].first, g) < costo(soluciones[elMejor].first, g)) {
-			elMejor = i;
+		for (int i = 1; i < soluciones.size(); i++) {	
+			if(costo(soluciones[i].first, g) < costo(soluciones[elMejor].first, g)) {
+				elMejor = i;
+			}
 		}
+		res = soluciones[elMejor];
+	} else {
+		res = make_pair(Hamiltoniano(0, 1), make_pair(-1,-1));
 	}
-	return soluciones[elMejor];
+	return res;
 }
 
 
-vector<pair<Hamiltoniano, pair<int,int>>> obtenerSubVecindadConInfoIntercambios(Hamiltoniano solucionParcial, Grafo g) {
+vector<pair<Hamiltoniano, pair<int,int>>> obtenerSubVecindadConInfoIntercambios(Hamiltoniano solucionParcial, Grafo &g) {
 	vector<pair<Hamiltoniano, pair<int,int>>> vecindad;
 	int n = g.size();
 	float probabilidadDeDescarte = 0.8;
 	default_random_engine generator (42);
 	bernoulli_distribution distribution(probabilidadDeDescarte);
 
-    // cout << "SubVecindad - Ciclo -1 : " << "Llegé a 0" << endl;
 	for (int i = 0; i < n; i++) {
 		for (int j = i+1; j < n; j++) {
-           // cout << "SubVecindad - Ciclo " << i << "-" << j << ": " << "Llegé a 1" << endl;
 			if(!distribution(generator)) {
-               // cout << "SubVecindad - Ciclo " << i << "-" << j << ": " << "Llegé a 2" << endl;
             	Hamiltoniano sol2opt = dosOpt(solucionParcial, i, j);
 				pair<int,int> intercambio (i,j);
 				vecindad.push_back(pair<Hamiltoniano, pair<int,int>>(sol2opt, intercambio));
@@ -293,7 +292,7 @@ vector<pair<Hamiltoniano, pair<int,int>>> obtenerSubVecindadConInfoIntercambios(
 }
 
 
-pair<Hamiltoniano, pair<int,int>> obtenerMejorConMemoriaDeAristas(vector<pair<Hamiltoniano, pair<int,int>>> &vecinos , vector<pair<int,int>> &memoria, Grafo g) {
+pair<Hamiltoniano, pair<int,int>> obtenerMejorConMemoriaDeAristas(vector<pair<Hamiltoniano, pair<int,int>>> &vecinos , vector<pair<int,int>> &memoria, Grafo &g) {
 	vector<pair<Hamiltoniano, pair<int,int>>> vecinosFiltrados;
 
 	//saco de los posibles vecinos, aquellos que esten en memoria
@@ -313,10 +312,11 @@ pair<Hamiltoniano, pair<int,int>> obtenerMejorConMemoriaDeAristas(vector<pair<Ha
 
 
 // Metaheurística tabú cuya memoria guarda los últimos swaps entre pares de aristas. 
-Hamiltoniano heuristicaTabuAristasIntercambiadas(Grafo g, Hamiltoniano solucionInicial(Grafo), string criterioDeParada,int threshold, int tamanioMemoria) {
+Hamiltoniano heuristicaTabuAristasIntercambiadas(Grafo &g, Hamiltoniano solucionInicial(Grafo&), string criterioDeParada,int umbral, int tamanioMemoria) {
 	pair<Hamiltoniano, pair<int,int>> ciclo = make_pair(solucionInicial(g),make_pair(-1,-1));
 	pair<Hamiltoniano, pair<int,int>> mejor = ciclo;
 	vector<pair<int, int>> memoria(tamanioMemoria, pair<int,int>(-1,-1));
+	int indiceMasViejoDeLaMemoria = 0;
 	int cantIteracionesSinMejora = 0;
 	int cantIteraciones = 0;
 	int* criterio;
@@ -327,9 +327,14 @@ Hamiltoniano heuristicaTabuAristasIntercambiadas(Grafo g, Hamiltoniano solucionI
 		criterio = &cantIteraciones;
 	}
 
-	while (*criterio < threshold) {
+	while (*criterio < umbral) {
 		vector<pair<Hamiltoniano, pair<int,int>>> vecinos = obtenerSubVecindadConInfoIntercambios(ciclo.first, g);
-		ciclo = obtenerMejorConMemoriaDeAristas(vecinos, memoria, g);
+		pair<Hamiltoniano, pair<int,int>> nuevo = obtenerMejorConMemoriaDeAristas(vecinos, memoria, g);
+		if(nuevo.second.first != -1) {
+			ciclo = nuevo;
+		}
+		memoria[indiceMasViejoDeLaMemoria] = ciclo.second;
+		indiceMasViejoDeLaMemoria = (indiceMasViejoDeLaMemoria + 1) % tamanioMemoria;
 		if(costo(ciclo.first, g) < costo(mejor.first, g)) {
 			mejor = ciclo;
 		} else {

@@ -16,7 +16,7 @@ Grafo leerGrafo() {
     return G;
 }
 
-bool esIgual(Grafo a, Grafo b) {
+bool esIgual(Grafo &a, Grafo &b) {
 	for (size_t i = 0; i < a.size(); i++)
 	{
 		for (size_t j = 0; i < b.size(); i++)
@@ -28,7 +28,7 @@ bool esIgual(Grafo a, Grafo b) {
 	return true;
 }
 
-void imprimirGrafo(Grafo g) {
+void imprimirGrafo(Grafo &g) {
 	cout << "   ";
 	for(int i = 0; i< g.size(); i++) {
 		cout << i << "\t";
@@ -60,7 +60,7 @@ void desconectar(Grafo &g, int i, int j) {
 	g[j][i] = -1;
 }
 
-bool todosVisitados(vector<bool> visitado) {
+bool todosVisitados(vector<bool> &visitado) {
 	bool res = true;
 
 	for(int i = 0; i < visitado.size() ; i++) {
@@ -70,7 +70,7 @@ bool todosVisitados(vector<bool> visitado) {
 	return res;
 }
 
-int nodoDeMenorDistancia(Grafo g, int n, vector<bool> visitado, vector<int> distancia) {
+int nodoDeMenorDistancia(Grafo &g, int n, vector<bool> &visitado, vector<int> &distancia) {
 	int min = INFINITO;
 	int res;
 
@@ -84,7 +84,7 @@ int nodoDeMenorDistancia(Grafo g, int n, vector<bool> visitado, vector<int> dist
 	return res;
 }
 
-void vecinos(Grafo g, int i, int &deDondeVengo, int &aDondeVoy) {
+void vecinos(Grafo &g, int i, int &deDondeVengo, int &aDondeVoy) {
 	deDondeVengo = -1;
 	aDondeVoy = -1;
 
@@ -100,7 +100,7 @@ void vecinos(Grafo g, int i, int &deDondeVengo, int &aDondeVoy) {
 	}
 }
 
-bool esta(int elem, vector<int> v) {
+bool esta(int elem, vector<int> &v) {
 	for (int i = 0; i < v.size(); i++){
 		if(elem == v[i]) {
 			return true;
@@ -110,37 +110,7 @@ bool esta(int elem, vector<int> v) {
 	return false;
 }
 
-//precondicion: g es hamiltoniano y cualquier arista que no sea parte del ciclo hamilt. debe valer -1.
-vector<int> convertirAListaDeNodos(Grafo g) {
-	// este algoritmo se basa FUERTEMENTE en la idea de que todo nodo en un ciclo hamilt 
-	// tiene 2 y solo 2 adyacentes, a uno lo llamo "desde" y al otro "hasta".
-
-	//la idea basica es moverme hacia el adyacente que no me haya movido ya, es decir,
-	//moverme hacia el adyacente que !esta(ady, recorridos). el adyacente puede ser desde o hasta.
-	//si tanto desde como hasta ya los recorri entonces termine, le di la vuelta al ciclo.
-
-	int n = g.size();
-	vector<int> recorridos;
-	int desde = 0;
-	int hasta = 0;
-	bool termine = false;
-
-	while (!termine) {
-		if(!esta(desde, recorridos)) {
-			recorridos.push_back(desde);
-			vecinos(g, desde, desde, hasta);
-		} else if (!esta(hasta, recorridos)) {
-			recorridos.push_back(hasta);
-			vecinos(g, hasta, desde, hasta);
-		} else {
-			termine = true;
-		}
-	}
-
-	return recorridos;
-}
-
-Grafo convertirAGrafo(vector<int> padre, Grafo g){
+Grafo convertirAGrafo(vector<int> &padre, Grafo &g){
 	Grafo res(g.size(), vector<Peso>(g.size(), -1));
 
 	for(int i = 1; i < padre.size(); i++) {
@@ -150,7 +120,7 @@ Grafo convertirAGrafo(vector<int> padre, Grafo g){
 	return res;
 }
 
-Grafo AGM(Grafo g) {
+Grafo AGM(Grafo &g) {
 	// Basado fuertemente en el pseudocódigo que vimos en la clase del laboratorio dedicada a árbol generador mínimo.
 	int n = g.size(); // pa que sea mas declarativo (?)
 	vector<bool> visitado(n,false);
@@ -184,7 +154,7 @@ Grafo AGM(Grafo g) {
 	return res;
 }
 
-void DFSAux(Grafo g, int v,vector<bool> &visitados,vector<int> &orden) {
+void DFSAux(Grafo &g, int v,vector<bool> &visitados,vector<int> &orden) {
     visitados[v] = true;
     orden.push_back(v);
 
@@ -196,7 +166,7 @@ void DFSAux(Grafo g, int v,vector<bool> &visitados,vector<int> &orden) {
 }
 
 // Dado un grafo G devuelve el orden en el que recorre los nodos sin repetir
-vector<int> DFS(Grafo g,int v) {
+vector<int> DFS(Grafo &g,int v) {
     vector<bool> visitados =  vector<bool>(g.size(),false);
     vector<int> orden = vector<int>();
 

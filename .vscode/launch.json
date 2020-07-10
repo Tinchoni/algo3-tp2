@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/tp",
-            "args": [],
+            "args": ["--algoritmo", "Tabu", "--tamanioMemoria", "1000", "--itParada", "1000", "--tipoMemoria", "aristas"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
