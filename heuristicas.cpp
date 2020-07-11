@@ -274,7 +274,7 @@ pair<Hamiltoniano, pair<int,int>> obtenerMejorConInfo(vector<pair<Hamiltoniano, 
 		}
 		res = soluciones[elMejor];
 	} else {
-		res = make_pair(Hamiltoniano(0, 1), make_pair(-1,-1));
+		res = make_pair(Hamiltoniano(0, 0), make_pair(-1,-1));
 	}
 	return res;
 }
@@ -339,7 +339,7 @@ Hamiltoniano heuristicaTabuAristasIntercambiadas(Grafo &g, Hamiltoniano solucion
 	while (*criterio < umbral) {
 		vector<pair<Hamiltoniano, pair<int,int>>> vecinos = obtenerSubVecindadConInfoIntercambios(ciclo.first, g);
 		pair<Hamiltoniano, pair<int,int>> nuevo = obtenerMejorConMemoriaDeAristas(vecinos, memoria, g);
-		if(nuevo.second.first != -1) {
+		if(nuevo.first.size() > 0) {
 			ciclo = nuevo;
 			memoria[indiceMasViejoDeLaMemoria] = ciclo.second;
 			indiceMasViejoDeLaMemoria = (indiceMasViejoDeLaMemoria + 1) % tamanioMemoria;
