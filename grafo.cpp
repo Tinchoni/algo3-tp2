@@ -23,7 +23,7 @@ bool esIgual(Grafo &a, Grafo &b) {
 		{
 			if(a[i][j] != b[i][j]) return false;
 		}
-		
+
 	}
 	return true;
 }
@@ -45,7 +45,7 @@ void imprimirGrafo(Grafo &g) {
         cout << i << "| ";
         for (int j = 0; j < g[i].size(); j++)
         {
-            cout << g[i][j] << "\t\n"[j == g.size() - 1]; 
+            cout << g[i][j] << "\t\n"[j == g.size() - 1];
         }
     }
 }
@@ -75,7 +75,7 @@ int nodoDeMenorDistancia(Grafo &g, int n, vector<bool> &visitado, vector<int> &d
 	int res;
 
 	for(int i = 0; i < n; i++) {
-		if(distancia[i] < res && !visitado[i]) {
+		if(distancia[i] < min && !visitado[i]) {
 			min = distancia[i];
 			res = i;
 		}
@@ -148,6 +148,7 @@ Grafo AGM(Grafo &g) {
 			}
 		}
 	}
+
 	// en este punto ya tengo padres, que es la sucesion de nodos que me arman el AGM. Lo transformo a lista de adyacencias y listorti:
 	Grafo res = convertirAGrafo(padre, g);
 
@@ -161,7 +162,7 @@ void DFSAux(Grafo &g, int v,vector<bool> &visitados,vector<int> &orden) {
     for (int i = 0; i < g[v].size(); i++){
         if (g[v][i] >= 0 && !visitados[i]) {
             DFSAux(g,i,visitados,orden);
-        } 
+        }
     }
 }
 

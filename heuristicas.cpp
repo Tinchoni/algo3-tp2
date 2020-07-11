@@ -1,6 +1,6 @@
 #include "heuristicas.h"
 #include <random>
-#include<algorithm> 
+#include<algorithm>
 
 int obtenerElVecinoNoVisitadoMasCercano (int actual, Grafo &g, vector<bool> &visitados) {
     int n = g.size();
@@ -8,7 +8,7 @@ int obtenerElVecinoNoVisitadoMasCercano (int actual, Grafo &g, vector<bool> &vis
 
     for(int i = 0; i < n; i++){
         if(
-            !visitados[i] && //no se puede volver a visitar nodos 
+            !visitados[i] && //no se puede volver a visitar nodos
             (elMasCercano == -1 || g[actual][i] < g[actual][elMasCercano]) //que le gane a elMasCercano
             ) {
             elMasCercano = i;
@@ -33,7 +33,7 @@ Hamiltoniano heuristicaVecinoMasCercano(Grafo &g, int nodoInicial) {
         int elMasCercano = obtenerElVecinoNoVisitadoMasCercano(actual, g, visitados);
 
         circuitoHamiltoniano.push_back(elMasCercano);
-        
+
         actual = elMasCercano;
         visitados[actual] = true;
     }
@@ -91,7 +91,7 @@ void insertarElementoEnPosicion(vector<int> &v, int valor, int indice) {
 
 
 void insertarNodo(int elegido, Grafo &g, vector<bool> &visitados, vector<int> &insertados) {
-	// Como criterio de inserción tomaremos dos nodos consecutivos i e i+1 tales que minimicen el costo de insertar al nuevo nodo entre i e i+1. 
+	// Como criterio de inserción tomaremos dos nodos consecutivos i e i+1 tales que minimicen el costo de insertar al nuevo nodo entre i e i+1.
 	int costoResultante = INFINITO;
 	int costoActual;
 	int izquierda;
@@ -134,7 +134,7 @@ Hamiltoniano heuristicaDeInsercion(Grafo &g) {
 	insertados.push_back(0);
 	insertados.push_back(1);
 	insertados.push_back(2);
-	
+
 	while(!todosVisitados(visitados)) { // Iteramos hasta que estén todos los nodos insertados en el ciclo, es decir, hasta que estén todos visitados.
 		int elegido = elegirNodo(g, visitados, insertados);
 		visitados[elegido] = true;
@@ -179,7 +179,6 @@ Hamiltoniano obtenerMejor(vector<Hamiltoniano> &soluciones, Grafo &g) {
 	Hamiltoniano res;
 	if(soluciones.size() > 0) {
 		int elMejor = 0;
-
 		for (int i = 1; i < soluciones.size(); i++){	
 			if(costo(soluciones[i], g) < costo(soluciones[elMejor], g)) {
 				elMejor = i;
@@ -195,13 +194,13 @@ Hamiltoniano obtenerMejor(vector<Hamiltoniano> &soluciones, Grafo &g) {
 
 
 Hamiltoniano obtenerMejorConMemoriaDeSoluciones(vector<Hamiltoniano> &vecinos, vector<Hamiltoniano> &memoria, Grafo &g) {
-	vector<Hamiltoniano> vecinosFiltrados;	
+	vector<Hamiltoniano> vecinosFiltrados;
 	//saco de los posibles vecinos, aquellos que esten en memoria
 	for (int j = 0; j < vecinos.size(); j++){
         bool agrego = true;
 		for (int i = 0; i < memoria.size(); i++){
             if(memoria[i].size() != 0) {
-			    agrego = agrego && !sonIguales(vecinos[j], memoria[i]); 
+			    agrego = agrego && !sonIguales(vecinos[j], memoria[i]);
             }
 
 		}
@@ -223,7 +222,7 @@ Hamiltoniano solucionHardcoded(Grafo &g) {
 }
 
 
-// Metaheurística tabú cuya memoria guarda las últimas soluciones exploradas. 
+// Metaheurística tabú cuya memoria guarda las últimas soluciones exploradas.
 Hamiltoniano heuristicaTabuSolucionesExploradas(Grafo &g, Hamiltoniano solucionInicial(Grafo&), string criterioDeParada,int umbral, int tamanioMemoria ) {
 	Hamiltoniano ciclo = solucionInicial(g);
 	Hamiltoniano mejor = ciclo;
@@ -267,7 +266,7 @@ pair<Hamiltoniano, pair<int,int>> obtenerMejorConInfo(vector<pair<Hamiltoniano, 
 	if(soluciones.size() > 0) {
 		int elMejor = 0;
 
-		for (int i = 1; i < soluciones.size(); i++) {	
+		for (int i = 1; i < soluciones.size(); i++) {
 			if(costo(soluciones[i].first, g) < costo(soluciones[elMejor].first, g)) {
 				elMejor = i;
 			}
@@ -309,7 +308,7 @@ pair<Hamiltoniano, pair<int,int>> obtenerMejorConMemoriaDeAristas(vector<pair<Ha
         bool agrego = true;
 		for (int i = 0; i < memoria.size(); i++){
             if(memoria[i].first != -1) {
-			    agrego = agrego && (memoria[i].first != vecinos[j].second.first || memoria[i].second != vecinos[j].second.second); 
+			    agrego = agrego && (memoria[i].first != vecinos[j].second.first || memoria[i].second != vecinos[j].second.second);
             }
 
 		}
@@ -320,7 +319,7 @@ pair<Hamiltoniano, pair<int,int>> obtenerMejorConMemoriaDeAristas(vector<pair<Ha
 }
 
 
-// Metaheurística tabú cuya memoria guarda los últimos swaps entre pares de aristas. 
+// Metaheurística tabú cuya memoria guarda los últimos swaps entre pares de aristas.
 Hamiltoniano heuristicaTabuAristasIntercambiadas(Grafo &g, Hamiltoniano solucionInicial(Grafo&), string criterioDeParada,int umbral, int tamanioMemoria) {
 	pair<Hamiltoniano, pair<int,int>> ciclo = make_pair(solucionInicial(g),make_pair(-1,-1));
 	pair<Hamiltoniano, pair<int,int>> mejor = ciclo;

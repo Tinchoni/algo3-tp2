@@ -8,6 +8,31 @@ Created on Tue Jun 30 13:29:28 2020
 import subprocess as sp
 import numpy as np
 import random
+from math import factorial, log10
+from decimal import Decimal
+
+import pickle
+
+from scipy.optimize import curve_fit
+
+# configuracion de plots
+from matplotlib import pyplot as plt
+from matplotlib import rc, rcParams, axes
+from matplotlib import axes as mplibAxes
+
+rc('text', usetex=True)
+rcParams['text.latex.preamble'] = [r'\boldmath']
+#rc('font', family='serif', size=20, weight='bold')
+rc('font', family='serif', size=14)
+rcParams['axes.axisbelow'] = True
+rcParams['lines.linewidth'] = 2
+rc('axes', labelsize=18)
+rc('xtick', labelsize=18)
+rc('ytick', labelsize=18)
+rcParams['figure.figsize'] = (8.0, 8.0)
+rcParams['figure.dpi'] = 120
+
+########
 
 class grafo: #Define un digrafo de N vertices con nombres 0...N-1	
 	def __init__(self, N, aristas):
@@ -25,9 +50,13 @@ class grafo: #Define un digrafo de N vertices con nombres 0...N-1
 		self.aristas = dict()
 		self.N = N
 		
+		# costos pueden ser útiles
+		self.costos_aristas = []
+		
 		for arista in aristas.keys():
 			(i,j) = arista
 			peso = aristas[(i,j)]
+			self.costos_aristas.append(peso)
 			
 			if i>=N or j>=N:
 				raise Exception("Grafo no válido!")
@@ -58,7 +87,37 @@ class grafo: #Define un digrafo de N vertices con nombres 0...N-1
 	def exportar(self, filename):
 		with open(filename, 'w') as f:
 			f.write(self.stdin())
-				
+	
+	def Ec(self, r):
+		n = self.N
+		t1 = Decimal( factorial(n-1)//2 )
+		t2 = Decimal( (r-1)**(n-1) )
+		t3 = Decimal( (n-2)**(n-1) )
+		t4 = Decimal(r/(n-1))
+		out = ((t1 * t2) / t3 )*t4
+		return  out
+	
+	def optimo_estimado(self):
+		r = 1
+		objetivo = 1.
+		# caca search
+		while( self.Ec(r) < objetivo):
+			r += 1
+		
+		low = r-1
+		upp = r
+		val = -1
+		while( abs(val-1) > 0.0001 ):
+			r = (low + upp)/2
+			val = self.Ec(r)
+			if val<1.: low = r
+			else: upp = r
+		
+		numero_aristas = int(self.N*r + 1)//2
+		menos_costosas = sorted(self.costos_aristas)[:numero_aristas]
+		
+		return (r, sum(menos_costosas)/numero_aristas*self.N)
+		
 
 def cargarGrafo(filename):
 	aristas = dict()
@@ -74,8 +133,8 @@ def cargarGrafo(filename):
 		raise Exception("Archivo corrupto!")
 	
 	return grafo(N, aristas)
-		
-		
+
+
 
 def grafoRandomDesconectado(Nvertices, alpha=0.5):
 	Naristas = Nvertices*(Nvertices-1)//2
@@ -85,9 +144,9 @@ def grafoRandomDesconectado(Nvertices, alpha=0.5):
 	for i in range(Nvertices-1):
 		for j in range(i+1, Nvertices):
 			if random.random() > alpha: #alpha grande significa más desconectado
-				aristas[(i,j)] = random.randint(1, 50)
+				aristas[(i,j)] = random.randint(1, 5)
 			else:
-				aristas[(i,j)] = random.randint(10000, 50000)
+				aristas[(i,j)] = random.randint(100, 105)
 	
 	return grafo(Nvertices, aristas)
 
@@ -109,12 +168,19 @@ def grafoRandomEuclideo(Nvertices, distancia_maxima=40):
 	if (distancia_maxima//2+1)**2 < Nvertices:
 		raise Exception("Necesito distancia")
 	
+	puntos = []
 	#generar lista con las coordenadas posibles
-	coordenadas = [(x, y) for x in range(distancia_maxima//2+1) for y in range(distancia_maxima//2+1)]
+	while(len(puntos)<Nvertices):
+		x = random.randint(0, (distancia_maxima//2+1) )
+		y = random.randint(0, (distancia_maxima//2+1) )
+		if (x,y) not in puntos:
+			puntos.append((x,y))
 	
+	
+	#coordenadas = [(x, y) for x in range(distancia_maxima//2+1) for y in range(distancia_maxima//2+1)]
 	#elijo los puntos
-	random.shuffle(coordenadas)
-	puntos = coordenadas[:Nvertices]
+	#random.shuffle(coordenadas)
+	#puntos = coordenadas[:Nvertices]
 	
 	#el peso va a ser la vieja y querida norma 1
 	def norma1(a, b): return abs(a[0]-b[0]) + abs(a[1]-b[1])
@@ -161,6 +227,12 @@ class tpout:
 			return False
 		
 		return True
+	
+	
+	def guardar(self, filename):
+		with open(filename, 'wb') as f:
+			pickle.dump(f, self)
+		return
 		
 def tprun(string_opciones, grafo):
 	print('[tprun] :: N = %i'%grafo.N)
@@ -169,3 +241,77 @@ def tprun(string_opciones, grafo):
 	
 	return tpout(proc.stdout, proc.stderr)
 
+
+global memo
+def dado(X, N, F):
+	global memo
+	memo = [[-1 for _ in range(N+1)] for _ in range(X+1)]
+	
+	#return dado_comp(X, N, F)
+	return sum( [dado_comp(i, N, F) for i in range(X+1)])
+	
+def dado_comp(X, N, F):
+	if N*F<X or X<N: return 0
+	if N == 1: return 1
+	
+	if memo[X][N] == -1:
+		memo[X][N] = 0
+		for i in range(1, F+1):
+			memo[X][N] += dado_comp(X-i, N-1, F)
+	
+	return memo[X][N]
+
+
+
+
+
+import tsplib95
+
+def cargarGrafo_tsp(filename):
+	problema = tsplib95.load(filename)
+	if problema.dimension > 2000:
+		raise Exception("demasiado grande")
+		
+	nodos = list( problema.get_nodes() )
+	N = len( nodos )
+	
+	
+	aristas = dict()
+	for i in range(N-1):
+		for j in range(i+1, N):
+			peso = problema.get_weight(*(nodos[i],nodos[j]))
+			#chequeo
+			if peso != problema.get_weight(*(nodos[j],nodos[i])):
+				raise Exception("Es un digrafo!")
+			
+			aristas[(i, j)] = peso
+	
+	return grafo(N, aristas)
+
+def cargarCiclo_tour(filename):
+	with open(filename, 'r') as f:
+		lineas = [x.strip('\n') for x in f.readlines()]
+	
+	ciclo = []
+	for line in lineas:
+		try:
+			x = int(line)
+		except:
+			continue
+		if x == -1:
+			ciclo.append(ciclo[0])
+			continue
+		ciclo.append(x-1)
+		
+	return ciclo
+
+# Esto estaba para  traducir a archivos de entrada del TP, pero me parece al pedo
+#import os
+#for filename in [x for x in os.listdir('grafos_test') if '.tsp' in x]:
+#	print(filename)
+#	try:
+#		g = cargarGrafo_tsp('grafos_test/%s'%filename)
+#		g.exportar('optimos/%s.txt'%filename[:-4])
+#	except:
+#		continue
+	
