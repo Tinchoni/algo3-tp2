@@ -11,22 +11,27 @@ from general import *
 
 i_agm = "--algoritmo AGM";
 o_agm = []
+o_agm_euclideo = []
 i_vmc = "--algoritmo VecinoMasCercano"
 o_vmc = []
 i_ins = "--algoritmo Insercion"
 o_ins = []
 
-Ns = list(range(20, 1021, 50)) #N del grafo
+Ns = list(range(20, 1221, 50)) #N del grafo
 ts = []
 
 for N in Ns:
-	grafo = grafoRandomUniforme(N, (1, 50)) #aristas de peso 1 a 50
+	grafo = grafoRandomUniforme(N, (1, 500)) #aristas de peso 1 a 500
 	
 	for entrada, salida in zip((i_agm, i_vmc, i_ins), (o_agm, o_vmc, o_ins)):
 		salida.append( tprun(entrada, grafo) )
 		
 		if not salida[-1].verificar(grafo):
 			raise Exception("Ups!")
+	
+	grafo = grafoRandomEuclideo(N, 500)
+	o_agm_euclideo.append( tprun(i_agm, grafo) )
+	
 		
 #%%
 #plt.rcParams['legend.title_fontsize'] = 'xx-small'
@@ -53,18 +58,20 @@ plt.plot(xs, fit_ins[0][0] + fit_ins[0][1]*np.log(xs), '--C2', label='%0.2f log(
 plt.ylabel("log( Tiempo [s] )")
 plt.xlabel("Número de nodos [N]")
 plt.legend()
-plt.savefig('complejidad.pdf')
+plt.savefig('complejidad_temporal.pdf')
 
 plt.figure()
 c_agm = np.array( [x.costo for x in o_agm] )/np.array(Ns)
+c_agm_euclideo = np.array( [x.costo for x in o_agm_euclideo] )/np.array(Ns)
 c_vmc = np.array( [x.costo for x in o_vmc] )/np.array(Ns)
 c_ins = np.array( [x.costo for x in o_ins] )/np.array(Ns)
 
+plt.plot(Ns, c_agm_euclideo, 'xC0', mew=3	, ms=8, label='AGM - grafo euclideo')
 plt.plot(Ns, c_agm, 'oC0', label='AGM')
 plt.plot(Ns, c_vmc, 'oC1', label='Vecino más cercano')
 plt.plot(Ns, c_ins, 'oC2', label='Inserción')
 
-plt.ylabel("Costo medio por nodo del ciclo normaizado")
+plt.ylabel("Costo medio por arista del ciclo")
 plt.xlabel("Número de nodos [N]")
 plt.legend()
 plt.savefig('costo_por_ciclo.pdf')
