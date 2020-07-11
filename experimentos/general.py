@@ -262,8 +262,7 @@ def dado_comp(X, N, F):
 	return memo[X][N]
 
 
-
-
+# GRAFOS DE LA PÁGINA http://elib.zib.de/pub/mp-testdata/tsp/tsplib/tsp/index.html
 
 import tsplib95
 
@@ -283,6 +282,9 @@ def cargarGrafo_tsp(filename):
 			#chequeo
 			if peso != problema.get_weight(*(nodos[j],nodos[i])):
 				raise Exception("Es un digrafo!")
+			
+			if type( peso ) != int:
+				raise Exception("Pesos no enteros!")
 			
 			aristas[(i, j)] = peso
 	
@@ -314,4 +316,114 @@ def cargarCiclo_tour(filename):
 #		g.exportar('optimos/%s.txt'%filename[:-4])
 #	except:
 #		continue
-	
+
+costos_optimos = dict()
+costos_optimos["a280"]= 2579
+costos_optimos["ali535"]= 202310
+costos_optimos["att48"]= 10628
+costos_optimos["att532"]= 27686
+costos_optimos["bayg29"]= 1610
+costos_optimos["bays29"]= 2020
+costos_optimos["berlin52"]= 7542
+costos_optimos["bier127"]= 118282
+costos_optimos["brazil58"]= 25395
+costos_optimos["brd14051"]= [468942,469935]
+costos_optimos["brg180"]= 1950
+costos_optimos["burma14"]= 3323
+costos_optimos["ch130"]= 6110
+costos_optimos["ch150"]= 6528
+costos_optimos["d198"]= 15780
+costos_optimos["d493"]= 35002
+costos_optimos["d657"]= 48912
+costos_optimos["d1291"]= 50801
+costos_optimos["d1655"]= 62128
+costos_optimos["d2103"]= [79952,80529]
+costos_optimos["d18512"]= [644650,645923]
+costos_optimos["dantzig42"]= 699
+costos_optimos["dsj1000"]= 18659688
+costos_optimos["eil51"]= 426
+costos_optimos["eil76"]= 538
+costos_optimos["fl417"]= 11861
+costos_optimos["fl1400"]= 20127
+costos_optimos["fl1577"]= [22204,22249]
+costos_optimos["fl3795"]= [28723,28772]
+costos_optimos["fnl4461"]= 182566
+costos_optimos["fri26"]= 937
+costos_optimos["gil262"]= 2378
+costos_optimos["gr17"]= 2085
+costos_optimos["gr21"]= 2707
+costos_optimos["gr24"]= 1272
+costos_optimos["gr48"]= 5046
+costos_optimos["gr96"]= 55209
+costos_optimos["gr120"]= 6942
+costos_optimos["gr137"]= 69853
+costos_optimos["gr202"]= 40160
+costos_optimos["gr229"]= 134602
+costos_optimos["gr431"]= 171414
+costos_optimos["gr666"]= 294358
+costos_optimos["hk48"]= 11461
+costos_optimos["kroA100"]= 21282
+costos_optimos["kroB100"]= 22141
+costos_optimos["kroC100"]= 20749
+costos_optimos["kroD100"]= 21294
+costos_optimos["kroE100"]= 22068
+costos_optimos["kroA150"]= 26524
+costos_optimos["kroB150"]= 26130
+costos_optimos["kroA200"]= 29368
+costos_optimos["kroB200"]= 29437
+costos_optimos["lin105"]= 14379
+costos_optimos["lin318"]= 42029
+costos_optimos["linhp318"]= 41345
+costos_optimos["nrw1379"]= 56638
+costos_optimos["p654"]= 34643
+costos_optimos["pa561"]= 2763
+costos_optimos["pcb442"]= 50778
+costos_optimos["pcb1173"]= 56892
+costos_optimos["pcb3038"]= 137694
+costos_optimos["pla7397"]= 23260728
+costos_optimos["pla33810"]= [65913275,66138592]
+costos_optimos["pla85900"]= [141904862,142514146]
+costos_optimos["pr76"]= 108159
+costos_optimos["pr107"]= 44303
+costos_optimos["pr124"]= 59030
+costos_optimos["pr136"]= 96772
+costos_optimos["pr144"]= 58537
+costos_optimos["pr152"]= 73682
+costos_optimos["pr226"]= 80369
+costos_optimos["pr264"]= 49135
+costos_optimos["pr299"]= 48191
+costos_optimos["pr439"]= 107217
+costos_optimos["pr1002"]= 259045
+costos_optimos["pr2392"]= 378032
+costos_optimos["rat99"]= 1211
+costos_optimos["rat195"]= 2323
+costos_optimos["rat575"]= 6773
+costos_optimos["rat783"]= 8806
+costos_optimos["rd100"]= 7910
+costos_optimos["rd400"]= 15281
+costos_optimos["rl1304"]= 252948
+costos_optimos["rl1323"]= 270199
+costos_optimos["rl1889"]= 316536
+costos_optimos["rl5915"]= [565040,565544]
+costos_optimos["rl5934"]= [554070,556050]
+costos_optimos["rl11849"]= [920847,923473]
+costos_optimos["si175"]= 21407
+costos_optimos["si535"]= 48450
+costos_optimos["si1032"]= 92650
+costos_optimos["st70"]= 675
+costos_optimos["swiss42"]= 1273
+costos_optimos["ts225"]= 126643
+costos_optimos["tsp225"]= 3919
+costos_optimos["u159"]= 42080
+costos_optimos["u574"]= 36905
+costos_optimos["u724"]= 41910
+costos_optimos["u1060"]= 224094
+costos_optimos["u1432"]= 152970
+costos_optimos["u1817"]= 57201
+costos_optimos["u2152"]= 64253
+costos_optimos["u2319"]= 234256
+costos_optimos["ulysses16"]= 6859
+costos_optimos["ulysses22"]= 7013
+costos_optimos["usa13509"]= [19947008,20167722]
+costos_optimos["vm1084"]= 239297
+costos_optimos["vm1748"]= 336556
