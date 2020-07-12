@@ -5,6 +5,7 @@ Se debe poseer un archivo de texto que satisfaga el formato de entrada indicado 
 ./tp --algoritmo {Hardcoded, VecinoMasCercano, Insercion, AGM, Tabu}
 
 si se usa tabú:
+
 --solInicial {Hardcoded, VecinoMasCercano, Insercion, AGM}
 --tamanioMemoria (Default 50)
 --tipoMemoria {soluciones, aristas}
