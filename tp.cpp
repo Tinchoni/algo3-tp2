@@ -23,6 +23,7 @@ int main(int argc, const char** argv) {
     parser.addArgument("-s","--tipoMemoria",1);
     parser.addArgument("-p","--criterioParada",1);
     parser.addArgument("-i","--itParada",1);
+    parser.addArgument("-d", "--probaDescarte",1);
     //Valido Parametros
     parser.parse(argc, argv);
 
@@ -68,12 +69,20 @@ int main(int argc, const char** argv) {
         } else {
             itParada = 500;
         }
-
+        
         string arMemoria = parser.retrieve<string>("tamanioMemoria");
 
         int tamanioMemoria = 50;
         if(arMemoria != "") {
             tamanioMemoria = stoi(parser.retrieve<string>("tamanioMemoria"));
+        }
+
+        string argProbaDescarte = parser.retrieve<string>("probaDescarte");
+        float probaDescarte;
+        if (argProbaDescarte != "") {
+            probaDescarte = stoi(parser.retrieve<string>("probaDescarte"))/100.0;
+        } else {
+            itParada = 0.8;
         }
 
         string tipoMemoria = parser.retrieve<string>("tipoMemoria");
@@ -87,14 +96,16 @@ int main(int argc, const char** argv) {
                     solInicial,
                     argCriterioParada,
                     itParada,
-                    tamanioMemoria);
+                    tamanioMemoria,
+                    probaDescarte );
         } else if (tipoMemoria == "aristas") {
             res = heuristicaTabuAristasIntercambiadas(
                     g,
                     solInicial,
                     argCriterioParada,
                     itParada,
-                    tamanioMemoria );
+                    tamanioMemoria,
+                    probaDescarte );
         } else {
             cerr << "Mala invocacion, el tipoMemoria debe ser uno de {soluciones, aristas}" << endl;
         }

@@ -155,17 +155,16 @@ Hamiltoniano dosOpt(Hamiltoniano ciclo, int i, int j) {
 }
 
 
-vector<Hamiltoniano> obtenerSubVecindad(Hamiltoniano solucionParcial, Grafo &g) {
+vector<Hamiltoniano> obtenerSubVecindad(Hamiltoniano solucionParcial, Grafo &g, float probabilidadDeDescarte) {
 	vector<Hamiltoniano> vecindad;
 	int n = g.size();
-	float probabilidadDeDescarte = 0.8;
 	default_random_engine generator (42);
 	bernoulli_distribution distribution(probabilidadDeDescarte);
 
 	for (int i = 0; i < n; i++) {
 		for (int j = i+1; j < n; j++) {
 			if(!distribution(generator)) {
-                Hamiltoniano sol2opt = dosOpt(solucionParcial, i, j);
+				Hamiltoniano sol2opt = dosOpt(solucionParcial, i, j);
 				vecindad.push_back(sol2opt);
 			}
 		}
@@ -202,7 +201,6 @@ Hamiltoniano obtenerMejorConMemoriaDeSoluciones(vector<Hamiltoniano> &vecinos, v
             if(memoria[i].size() != 0) {
 			    agrego = agrego && !sonIguales(vecinos[j], memoria[i]);
             }
-
 		}
         if (agrego) vecinosFiltrados.push_back(vecinos[j]);
 	}
@@ -223,7 +221,7 @@ Hamiltoniano solucionHardcoded(Grafo &g) {
 
 
 // Metaheurística tabú cuya memoria guarda las últimas soluciones exploradas.
-Hamiltoniano heuristicaTabuSolucionesExploradas(Grafo &g, Hamiltoniano solucionInicial(Grafo&), string criterioDeParada,int umbral, int tamanioMemoria ) {
+Hamiltoniano heuristicaTabuSolucionesExploradas(Grafo &g, Hamiltoniano solucionInicial(Grafo&), string criterioDeParada,int umbral, int tamanioMemoria, float probabilidadDeDescarte ) {
 	Hamiltoniano ciclo = solucionInicial(g);
 	Hamiltoniano mejor = ciclo;
 	vector<Hamiltoniano> memoria(tamanioMemoria,vector<int>{});
@@ -239,7 +237,7 @@ Hamiltoniano heuristicaTabuSolucionesExploradas(Grafo &g, Hamiltoniano solucionI
 	}
 
 	while ( *criterio < umbral ){
-		vector<Hamiltoniano> vecinos = obtenerSubVecindad(ciclo, g);
+		vector<Hamiltoniano> vecinos = obtenerSubVecindad(ciclo, g, probabilidadDeDescarte);
 		Hamiltoniano nuevo = obtenerMejorConMemoriaDeSoluciones(vecinos, memoria, g);
 		if(nuevo.size() > 0) {
 			ciclo = nuevo;
@@ -279,10 +277,9 @@ pair<Hamiltoniano, pair<int,int>> obtenerMejorConInfo(vector<pair<Hamiltoniano, 
 }
 
 
-vector<pair<Hamiltoniano, pair<int,int>>> obtenerSubVecindadConInfoIntercambios(Hamiltoniano solucionParcial, Grafo &g) {
+vector<pair<Hamiltoniano, pair<int,int>>> obtenerSubVecindadConInfoIntercambios(Hamiltoniano solucionParcial, Grafo &g, float probabilidadDeDescarte) {
 	vector<pair<Hamiltoniano, pair<int,int>>> vecindad;
 	int n = g.size();
-	float probabilidadDeDescarte = 0.8;
 	default_random_engine generator (42);
 	bernoulli_distribution distribution(probabilidadDeDescarte);
 
@@ -300,6 +297,26 @@ vector<pair<Hamiltoniano, pair<int,int>>> obtenerSubVecindadConInfoIntercambios(
 }
 
 
+pair<Hamiltoniano, pair<int,int>> obtenerMejorConMemoriaDeAristasConAspiracion(vector<pair<Hamiltoniano, pair<int,int>>> &vecinos , vector<pair<int,int>> &memoria, Grafo &g, int mejorCostoHastaAhora) {
+	vector<pair<Hamiltoniano, pair<int,int>>> vecinosFiltrados;
+
+	//saco de los posibles vecinos, aquellos que esten en memoria
+	for (int j = 0; j < vecinos.size(); j++){
+        bool agrego = true;
+		if(!(costo(vecinos[j].first, g) < mejorCostoHastaAhora)) {
+			for (int i = 0; i < memoria.size(); i++){
+				if(memoria[i].first != -1) {
+					agrego = agrego && (memoria[i].first != vecinos[j].second.first || memoria[i].second != vecinos[j].second.second);
+				}
+
+			}
+		}
+        if (agrego) vecinosFiltrados.push_back(vecinos[j]);
+	}
+
+	return obtenerMejorConInfo(vecinosFiltrados, g);
+}
+
 pair<Hamiltoniano, pair<int,int>> obtenerMejorConMemoriaDeAristas(vector<pair<Hamiltoniano, pair<int,int>>> &vecinos , vector<pair<int,int>> &memoria, Grafo &g) {
 	vector<pair<Hamiltoniano, pair<int,int>>> vecinosFiltrados;
 
@@ -307,9 +324,9 @@ pair<Hamiltoniano, pair<int,int>> obtenerMejorConMemoriaDeAristas(vector<pair<Ha
 	for (int j = 0; j < vecinos.size(); j++){
         bool agrego = true;
 		for (int i = 0; i < memoria.size(); i++){
-            if(memoria[i].first != -1) {
-			    agrego = agrego && (memoria[i].first != vecinos[j].second.first || memoria[i].second != vecinos[j].second.second);
-            }
+			if(memoria[i].first != -1) {
+				agrego = agrego && (memoria[i].first != vecinos[j].second.first || memoria[i].second != vecinos[j].second.second);
+			}
 
 		}
         if (agrego) vecinosFiltrados.push_back(vecinos[j]);
@@ -320,9 +337,10 @@ pair<Hamiltoniano, pair<int,int>> obtenerMejorConMemoriaDeAristas(vector<pair<Ha
 
 
 // Metaheurística tabú cuya memoria guarda los últimos swaps entre pares de aristas.
-Hamiltoniano heuristicaTabuAristasIntercambiadas(Grafo &g, Hamiltoniano solucionInicial(Grafo&), string criterioDeParada,int umbral, int tamanioMemoria) {
+Hamiltoniano heuristicaTabuAristasIntercambiadas(Grafo &g, Hamiltoniano solucionInicial(Grafo&), string criterioDeParada,int umbral, int tamanioMemoria, float probabilidadDeDescarte) {
 	pair<Hamiltoniano, pair<int,int>> ciclo = make_pair(solucionInicial(g),make_pair(-1,-1));
 	pair<Hamiltoniano, pair<int,int>> mejor = ciclo;
+	int costoMejor = costo(mejor.first, g);
 	vector<pair<int, int>> memoria(tamanioMemoria, pair<int,int>(-1,-1));
 	int indiceMasViejoDeLaMemoria = 0;
 	int cantIteracionesSinMejora = 0;
@@ -336,15 +354,17 @@ Hamiltoniano heuristicaTabuAristasIntercambiadas(Grafo &g, Hamiltoniano solucion
 	}
 
 	while (*criterio < umbral) {
-		vector<pair<Hamiltoniano, pair<int,int>>> vecinos = obtenerSubVecindadConInfoIntercambios(ciclo.first, g);
+		vector<pair<Hamiltoniano, pair<int,int>>> vecinos = obtenerSubVecindadConInfoIntercambios(ciclo.first, g, probabilidadDeDescarte);
 		pair<Hamiltoniano, pair<int,int>> nuevo = obtenerMejorConMemoriaDeAristas(vecinos, memoria, g);
+		
 		if(nuevo.first.size() > 0) {
 			ciclo = nuevo;
 			memoria[indiceMasViejoDeLaMemoria] = ciclo.second;
 			indiceMasViejoDeLaMemoria = (indiceMasViejoDeLaMemoria + 1) % tamanioMemoria;
 		}
-		if(costo(ciclo.first, g) < costo(mejor.first, g)) {
+		if(costo(ciclo.first, g) < costoMejor) {
 			mejor = ciclo;
+			costoMejor = costo(mejor.first, g);
 		} else {
 			cantIteracionesSinMejora++;
 		}
