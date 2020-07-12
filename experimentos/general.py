@@ -20,8 +20,8 @@ from matplotlib import pyplot as plt
 from matplotlib import rc, rcParams, axes
 from matplotlib import axes as mplibAxes
 
-rc('text', usetex=True)
-rcParams['text.latex.preamble'] = [r'\boldmath']
+# rc('text', usetex=True)
+# rcParams['text.latex.preamble'] = [r'\boldmath']
 #rc('font', family='serif', size=20, weight='bold')
 rc('font', family='serif', size=14)
 rcParams['axes.axisbelow'] = True
