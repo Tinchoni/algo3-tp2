@@ -1,10 +1,10 @@
 ## Instrucciones de uso
 
-*Se debe poseer un archivo de texto que satisfaga el formato de entrada indicado en el enunciado. En el ejemplo de uso, utilizamos completo100.txt
+** Se debe poseer un archivo de texto que satisfaga el formato de entrada indicado en el enunciado. En el ejemplo de uso, utilizamos completo100.txt
 
 ./tp --algoritmo {Hardcoded, VecinoMasCercano, Insercion, AGM, Tabu}
 
-*Si se usa Tabú:
+**Si se usa Tabú:
 
 --solInicial {Hardcoded, VecinoMasCercano, Insercion, AGM}
 --tamanioMemoria (Default 50)
