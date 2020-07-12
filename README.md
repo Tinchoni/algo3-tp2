@@ -9,10 +9,15 @@
 * Si se usa Tabú:
 
 --solInicial {Hardcoded, VecinoMasCercano, Insercion, AGM}
+
 --tamanioMemoria (Default 50)
+
 --tipoMemoria {soluciones, aristas}
+
 --criterioParada {cantIteraciones,cantIteracionesSinMejora} (Default cantIteraciones)
+
 --itParada (Default 500) Descripción: umbral para el criterio de parada 
+
 --probaDescarte (Default 80) Descripción: valor entre 0 y 100 que indica el porcentaje de vecindad descartada.
 
 * Ejemplo de ejecución para Tabú:
