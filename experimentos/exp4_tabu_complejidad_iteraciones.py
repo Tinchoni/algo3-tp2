@@ -30,13 +30,18 @@ for nombre in grafos:
 			raise Exception("Ups!")
 
 
+with open("exp4.pkl", 'wb') as f:
+	pickle.dump((grafos, out_ari, out_sol), f)
 
+#%%
+with open("exp4.pkl", 'rb') as f:
+	(grafos, out_ari, out_sol) = pickle.load(f)
 #%%
 c=0
 plt.figure(1)
 for nombre in grafos:
 	ts = np.array( [x.tiempo for x in out_ari[nombre]] )/1000
-	plt.plot(iteraciones, ts, '.C%i'%c, label=nombre)
+	plt.plot(iteraciones, ts, '-C%i'%c, label=nombre)
 	
 	ts = np.array( [x.tiempo for x in out_sol[nombre]] )/1000
 	plt.plot(iteraciones, ts, '--C%i'%c)
@@ -53,15 +58,15 @@ plt.savefig('tabu_complejidad_iteraciones.pdf')
 
 c=0
 plt.figure(2)
-for nombre in grafos:
+for nombre in ["gr48", "gr202"]:
 	cs = np.array( [x.costo for x in out_ari[nombre]] )/costos_optimos[nombre]
 	plt.plot(iteraciones, cs, '-C%i'%c, label=nombre)
 	
 	cs = np.array( [x.costo for x in out_sol[nombre]] )/costos_optimos[nombre]
-	plt.plot(iteraciones, cs, '--C%i'%c)
+	plt.plot(iteraciones, cs, '--C%i'%c, linewidth=3)
 	c += 1
 	
 plt.xlabel('\# iteraciones tabú')
-plt.ylabel('Costo del camino hallado relativo al óptimo')
+plt.ylabel('Costo del ciclo hallado (relativo al óptimo)')
 plt.legend(title="Grafo")
 plt.savefig('tabu_costo_iteraciones.pdf')

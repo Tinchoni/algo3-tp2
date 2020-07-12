@@ -55,5 +55,5 @@ plt.plot(alps, c_ins/cs, 'oC2', label='Inserción')
 
 plt.ylabel("Costo relativo al óptimo estimado")
 plt.xlabel("Proporción de aristas caras $\\alpha$")
-plt.legend(title='Costo del ciclo hallado')
+plt.legend(title='Costo de la solución hallada')
 plt.savefig('costo_dispersion_desconectado_n=%i.pdf'%N)
