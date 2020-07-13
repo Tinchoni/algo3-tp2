@@ -1,4 +1,8 @@
-## Instrucciones de uso
+## Instrucciones de compilación
+
+En la carpeta del trabajo práctico, abrir una terminal y ejecutar el comando 'make'.
+
+## Instrucciones de ejecución
 
 * Se debe poseer un archivo de texto que satisfaga el formato de entrada indicado en el enunciado. En el ejemplo de uso, utilizamos completo100.txt
 
@@ -6,7 +10,7 @@
 
 ./tp --algoritmo {Hardcoded, VecinoMasCercano, Insercion, AGM, Tabu}
 
-* Si se usa Tabú:
+Si se usa Tabú:
 
 --solInicial {Hardcoded, VecinoMasCercano, Insercion, AGM}
 
